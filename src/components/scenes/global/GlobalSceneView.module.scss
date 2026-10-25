@@ -41,8 +41,7 @@
 }
 
 .background {
-  fill: rgb(19, 19, 19);
-  z-index: -1;
+  fill: rgba(255, 255, 255, 0.04);
 }
 
 .grid {
@@ -50,19 +49,17 @@
 }
 
 .gridLine {
-  stroke: rgba(0, 237, 241, 0.759);
-  stroke-width: 0.512;
+  stroke: rgba(126, 231, 255, 0.45);
+  stroke-width: 1;
   vector-effect: non-scaling-stroke;
-  z-index: 3;
 }
-
 
 .target {
   cursor: pointer;
 }
 
 .targetGlow {
-  fill: rgb(56 189 248 / 18%);
+  fill: rgba(56, 189, 248, 0.18);
   stroke: none;
   pointer-events: none;
 }
@@ -70,34 +67,39 @@
 .targetRing {
   fill: none;
   stroke: $color-border-strong;
-  stroke-width: 0.015;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
   transition: stroke 0.15s ease;
 }
 
 .targetRingHighlighted {
   stroke: $color-accent;
-  stroke-width: 0.025;
+  stroke-width: 2.5;
 }
 
 .targetCenter {
   fill: $color-text-faint;
+  stroke: none;
+  pointer-events: none;
   transition: fill 0.15s ease;
-}
-.targetHighlighted {
-  .targetRing {
-    stroke: $color-accent;
-    stroke-width: 0.025;
-  }
 }
 
 .targetCenterHighlighted {
   fill: $color-accent;
 }
 
+.targetHighlighted .targetRing {
+  stroke: $color-accent;
+  stroke-width: 2.5;
+}
+
 .shot {
   stroke: #0b0f16;
-  stroke-width: 0.004;
-  opacity: 0.72;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.82;
+  pointer-events: none;
   transition: opacity 0.15s ease;
 }
 
@@ -107,7 +109,8 @@
 
 .targetLabel {
   fill: $color-text-faint;
-  font-size: 0.11px;
+  font-size: 14px;
+  vector-effect: non-scaling-stroke;
   user-select: none;
   pointer-events: none;
   transition: fill 0.15s ease;
@@ -131,22 +134,6 @@
   cursor: pointer;
 }
 
-.targetRing {
-  pointer-events: none;
-}
-
-.targetCenter {
-  pointer-events: none;
-}
-
-.shot {
-  pointer-events: none;
-}
-
-.targetLabel {
-  pointer-events: none;
-}
-
 @media (max-width: 900px) {
   .canvasWrapper {
     padding: 4px;
@@ -155,4 +142,13 @@
   .canvas {
     aspect-ratio: 1 / 1;
   }
+}
+
+.targetRingEmpty {
+  fill: rgba(255, 255, 255, 0.02);
+  stroke: rgba(148, 163, 184, 0.55);
+  stroke-width: 1.25;
+  stroke-dasharray: 4 3;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
 }

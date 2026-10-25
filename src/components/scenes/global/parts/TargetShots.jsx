@@ -15,15 +15,24 @@ const getShotColor = (shot, index) => {
   return FALLBACK_COLORS[index % FALLBACK_COLORS.length];
 };
 
-export function TargetShots({ shots, radius, highlighted }) {
+export function TargetShots({
+  target,
+  shots,
+  radius,
+  highlighted,
+}) {
+  if (!target) {
+    return null;
+  }
+
   return (
     <>
       {shots.map((shot, index) => (
         <circle
           key={shot.id}
-          cx={shot.xGlobal}
-          cy={shot.yGlobal}
-          r={radius * 0.055}
+          cx={target.centerX + shot.xLocal}
+          cy={target.centerY + shot.yLocal}
+          r={Math.max(radius * 0.055, 1)}
           className={[
             styles.shot,
             highlighted ? styles.shotHighlighted : '',

@@ -73,15 +73,16 @@ export function TargetMarker({
           .join(' ')}
       />
 
-      <TargetShots
-        shots={target.shots}
-        radius={targetRadius}
-        highlighted={isHighlighted}
-      />
+        <TargetShots
+      target={target}
+      shots={target.shots}
+      radius={targetRadius}
+      highlighted={isHighlighted}
+    />
 
       <text
         x={target.centerX}
-        y={target.centerY - targetRadius - 0.08}
+        y={target.centerY - targetRadius -18}
         textAnchor="middle"
         className={[
           styles.targetLabel,

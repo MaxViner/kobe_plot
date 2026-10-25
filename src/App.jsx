@@ -26,6 +26,7 @@ export default function App() {
   const [error, setError] = useState(null);
   const [hoveredShotId, setHoveredShotId] = useState(null);
   const [hoveredTargetId, setHoveredTargetId] = useState(null);
+  
   const [gridSettings, setGridSettings] = useState({
       dx: 200,
       dy: 500,
@@ -141,7 +142,7 @@ export default function App() {
     }));
   }, []);
 
-  const sceneBounds = useMemo(() => {
+const sceneBounds = useMemo(() => {
   const halfWidth = ((GRID_COLUMNS - 1) / 2) * gridSettings.dx;
   const halfHeight = ((GRID_ROWS - 1) / 2) * gridSettings.dy;
 
@@ -152,6 +153,8 @@ export default function App() {
     maxY: halfHeight,
   };
 }, [gridSettings]);
+
+
   return (
     <div className={styles.root}>
       <AppHeaderWidget

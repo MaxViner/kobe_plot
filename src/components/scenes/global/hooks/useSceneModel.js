@@ -1,74 +1,80 @@
 import { useMemo } from 'react';
 
 export const GRID_COLUMNS = 9;
-export const GRID_ROWS = 5;
+export const GRID_ROWS = 4;
 
-export const CENTER_COLUMN = Math.ceil(GRID_COLUMNS / 2);
-export const CENTER_ROW = Math.ceil(GRID_ROWS / 2);
+export const LINE_NUMBERS = [240, 241, 242, 243];
+export const TARGET_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+export const CENTER_COLUMN = 5;
 
 export function useSceneModel(dataset, gridSettings) {
   return useMemo(() => {
-    const dx = gridSettings?.dx ?? dataset.metadata?.dx ?? 200;
-    const dy = gridSettings?.dy ?? dataset.metadata?.dy ?? 500;
+    const dx = gridSettings?.dx ?? 200;
+    const dy = gridSettings?.dy ?? 500;
 
-    const targets = [...dataset.targetsById.entries()].map(
-      ([targetId, shots]) => {
-        const firstShot = shots[0];
+    const shotsByCell = new Map();
 
-        const sourceColumn =
-          firstShot?.targetNumber ??
-          (Number.isInteger(firstShot?.targetCol)
-            ? firstShot.targetCol + 1
-            : CENTER_COLUMN);
+    dataset?.targetsById.forEach((shots, targetId) => {
+      const firstShot = shots[0];
 
-        const sourceRow =
-          firstShot?.lineNumber ??
-          (Number.isInteger(firstShot?.targetRow)
-            ? firstShot.targetRow + 1
-            : CENTER_ROW);
+      if (!firstShot) {
+        return;
+      }
 
-        const column = Math.min(
-          Math.max(sourceColumn, 1),
-          GRID_COLUMNS,
-        );
+      const lineNumber = Number(firstShot.lineNumber);
+      const targetNumber = Number(firstShot.targetNumber);
 
-        const row = Math.min(
-          Math.max(sourceRow, 1),
-          GRID_ROWS,
-        );
+      if (!LINE_NUMBERS.includes(lineNumber)) {
+        return;
+      }
 
-        return {
+      if (!TARGET_NUMBERS.includes(targetNumber)) {
+        return;
+      }
+
+      shotsByCell.set(`${lineNumber}-${targetNumber}`, shots);
+    });
+
+    const targets = [];
+
+    LINE_NUMBERS.forEach((lineNumber, lineIndex) => {
+      TARGET_NUMBERS.forEach((targetNumber) => {
+        const targetId = `${lineNumber}-${targetNumber}`;
+        const shots = shotsByCell.get(targetId) ?? [];
+
+        // 240 — нижняя линия, 243 — верхняя.
+        const rowFromBottom = lineIndex;
+
+        targets.push({
           targetId,
           shots,
+          isEmpty: shots.length === 0,
 
-          column,
-          row,
+          lineNumber,
+          targetNumber,
 
-          centerX: (column - CENTER_COLUMN) * dx,
-          centerY: (CENTER_ROW - row) * dy,
-        };
-      },
-    );
+          column: targetNumber,
+          rowFromBottom,
 
-    const uniqueCenterX = [
-      ...new Set(targets.map((target) => target.centerX)),
-    ].sort((a, b) => a - b);
-
-    const uniqueCenterY = [
-      ...new Set(targets.map((target) => target.centerY)),
-    ].sort((a, b) => a - b);
+          centerX: (targetNumber - CENTER_COLUMN) * dx,
+          centerY: (rowFromBottom - (GRID_ROWS - 1) / 2) * dy,
+        });
+      });
+    });
 
     return {
       targets,
+
       gridLines: {
-        vertical: uniqueCenterX.map((x) => ({
-          key: `grid-x-${x}`,
-          x,
+        vertical: TARGET_NUMBERS.map((targetNumber) => ({
+          key: `grid-x-${targetNumber}`,
+          x: (targetNumber - CENTER_COLUMN) * dx,
         })),
 
-        horizontal: uniqueCenterY.map((y) => ({
-          key: `grid-y-${y}`,
-          y,
+        horizontal: LINE_NUMBERS.map((lineNumber, lineIndex) => ({
+          key: `grid-y-${lineNumber}`,
+          y: (lineIndex - (GRID_ROWS - 1) / 2) * dy,
         })),
       },
     };
