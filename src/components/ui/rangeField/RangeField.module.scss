@@ -1,0 +1,19 @@
+@use '../../../styles/variables' as *;
+ 
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: $color-text-muted;
+
+  strong {
+    color: $color-accent;
+  }
+}
+
+.range {
+  width: 140px;
+  accent-color: $color-accent;
+}

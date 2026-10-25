@@ -1,0 +1,158 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.scene {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  @include panel;
+}
+
+.headerIcon {
+  color: $color-accent;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.canvasWrapper {
+  flex: 1;
+  min-height: 0;
+  padding: 8px;
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 10 / 7;
+  border-radius: $radius-md;
+  background: #00000038;
+  cursor: grab;
+  touch-action: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.background {
+  fill: rgb(19, 19, 19);
+  z-index: -1;
+}
+
+.grid {
+  pointer-events: none;
+}
+
+.gridLine {
+  stroke: rgba(0, 237, 241, 0.759);
+  stroke-width: 0.512;
+  vector-effect: non-scaling-stroke;
+  z-index: 3;
+}
+
+
+.target {
+  cursor: pointer;
+}
+
+.targetGlow {
+  fill: rgb(56 189 248 / 18%);
+  stroke: none;
+  pointer-events: none;
+}
+
+.targetRing {
+  fill: none;
+  stroke: $color-border-strong;
+  stroke-width: 0.015;
+  transition: stroke 0.15s ease;
+}
+
+.targetRingHighlighted {
+  stroke: $color-accent;
+  stroke-width: 0.025;
+}
+
+.targetCenter {
+  fill: $color-text-faint;
+  transition: fill 0.15s ease;
+}
+.targetHighlighted {
+  .targetRing {
+    stroke: $color-accent;
+    stroke-width: 0.025;
+  }
+}
+
+.targetCenterHighlighted {
+  fill: $color-accent;
+}
+
+.shot {
+  stroke: #0b0f16;
+  stroke-width: 0.004;
+  opacity: 0.72;
+  transition: opacity 0.15s ease;
+}
+
+.shotHighlighted {
+  opacity: 1;
+}
+
+.targetLabel {
+  fill: $color-text-faint;
+  font-size: 0.11px;
+  user-select: none;
+  pointer-events: none;
+  transition: fill 0.15s ease;
+}
+
+.targetLabelHighlighted {
+  fill: #7dd3fc;
+}
+
+.hint {
+  padding: 8px 16px;
+  border-top: 1px solid $color-border;
+  color: $color-text-faint;
+  font-size: 11px;
+}
+
+.targetHitArea {
+  fill: transparent;
+  stroke: none;
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.targetRing {
+  pointer-events: none;
+}
+
+.targetCenter {
+  pointer-events: none;
+}
+
+.shot {
+  pointer-events: none;
+}
+
+.targetLabel {
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .canvasWrapper {
+    padding: 4px;
+  }
+
+  .canvas {
+    aspect-ratio: 1 / 1;
+  }
+}

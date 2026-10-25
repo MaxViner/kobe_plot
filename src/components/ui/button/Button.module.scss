@@ -1,0 +1,67 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: $radius-md;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  @include focus-ring;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.primary {
+  background: $color-accent;
+  border: 1px solid transparent;
+  color: #04121d;
+
+  &:hover:not(:disabled) {
+    background: $color-accent-hover;
+  }
+}
+
+.secondary {
+  background: $color-surface-raised;
+  border: 1px solid $color-border;
+  color: $color-text-muted;
+
+  &:hover:not(:disabled) {
+    border-color: $color-border-strong;
+    color: $color-text;
+  }
+}
+
+.ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  color: $color-text-faint;
+
+  &:hover:not(:disabled) {
+    background: $color-surface-raised;
+    color: $color-text;
+  }
+}
+
+.sm {
+  height: 32px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.md {
+  height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.fullWidth {
+  width: 100%;
+}

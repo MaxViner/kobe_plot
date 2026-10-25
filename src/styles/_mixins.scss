@@ -1,0 +1,20 @@
+@use './variables' as *;
+
+@mixin panel {
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+}
+
+@mixin focus-ring {
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgb(56 189 248 / 55%);
+  }
+}
+
+@mixin scroll-area {
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: $color-border-strong transparent;
+}

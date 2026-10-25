@@ -1,0 +1,275 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.scene {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  @include panel;
+}
+
+.headerIcon {
+  color: $color-accent;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  padding: 12px;
+  @include scroll-area;
+  
+
+  @media (max-width: 900px) {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+}
+
+.radarWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 8px;
+  border-radius: $radius-md;
+  background: #111827;
+  border: 1px solid rgb(0, 255, 229);
+  box-shadow: 3px 3px 10px rgb(0, 187, 255);
+
+  @media (max-width: 900px) {
+    padding: 4px;
+  }
+}
+
+.radar {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.rangeRing {
+  fill: none;
+  stroke: $color-border;
+  stroke-width: 1;
+}
+
+.rangeRingMain {
+  stroke-width: 2;
+}
+
+.radialLine {
+  stroke: #243044;
+  stroke-width: 1;
+}
+
+.axis {
+  stroke: $color-border;
+  stroke-width: 1;
+}
+
+.azimuthLabel {
+  fill: $color-text-faint;
+  font-size: 11px;
+  user-select: none;
+}
+
+.clusterEllipse {
+  fill-opacity: 0.07;
+  stroke-opacity: 0.65;
+  stroke-width: 1.5;
+}
+
+.centroidRing {
+  fill: none;
+  stroke-width: 2;
+}
+
+.shot {
+  stroke: #0b0f16;
+  stroke-width: 0.8;
+  opacity: 0.82;
+  transition:
+    r 440ms ease,
+    opacity 440ms ease,
+    stroke 440ms ease;
+}
+
+.shotHovered {
+  stroke: #e2e8f0;
+  stroke-width: 1.5;
+}
+
+.origin {
+  fill: $color-text;
+}
+
+.metricsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  @include scroll-area;
+
+  @media (max-width: 900px) {
+    min-height: auto;
+    overflow: visible;
+  }
+}
+
+.metricsCard {
+  padding: 12px;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-surface-raised;
+}
+
+.metricsTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $color-text-muted;
+}
+
+.clusterList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.clusterCard {
+  padding: 8px;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  background: $color-surface;
+}
+
+.clusterHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.clusterName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: $color-text;
+}
+
+.clusterDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.clusterCep {
+  font-size: 11px;
+  color: $color-text-faint;
+}
+
+.clusterMetrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  font-size: 11px;
+  color: $color-text-muted;
+}
+
+.clusterMeta {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: $color-text-faint;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 100%;
+  padding: 32px;
+  text-align: center;
+  @include panel;
+  color: $color-text-muted;
+}
+
+.emptyIcon {
+  color: $color-text-faint;
+}
+
+.hoveredShot {
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.visible {
+  opacity: 1;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+.hoveredShotGlow {
+  fill: rgb(56 189 248 / 22%);
+  stroke: none;
+}
+
+.shotTooltip {
+  transform-box: fill-box;
+  transform-origin: left center;
+  opacity: 0;
+  transform: translateY(5px) scale(0.96);
+  transition:
+    opacity 480ms ease,
+    transform 480ms ease;
+}
+
+.visible .shotTooltip {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.hidden .shotTooltip {
+  opacity: 0;
+  transform: translateY(5px) scale(0.96);
+}
+
+.shotTooltipBackground {
+  fill: #1f2937;
+  stroke: #475569;
+  stroke-width: 1;
+}
+
+.shotTooltipTitle {
+  fill: #f8fafc;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.shotTooltipText {
+  fill: #cbd5e1;
+  font-size: 10px;
+}

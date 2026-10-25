@@ -1,0 +1,9 @@
+# dx=2
+# dy=2
+# grid_cols=4
+# grid_rows=3
+# shots_per_target=24
+target_id,azimuth_deg,range_m,series_id,timestamp
+T1,10,0.12,A,2026-01-01T10:00:00Z
+T1,190,0.18,B,2026-01-01T10:00:05Z
+T2_1,45,0.22,A,2026-01-01T10:01:00Z

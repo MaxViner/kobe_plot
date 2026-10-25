@@ -1,0 +1,28 @@
+@use '../../../styles/variables' as *;
+
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid $color-border;
+  font-size: 12px;
+
+  &:last-child {
+    border-bottom: 0;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+
+.label {
+  color: $color-text-faint;
+}
+
+.value {
+  margin: 0;
+  font-weight: 500;
+  color: $color-text;
+}

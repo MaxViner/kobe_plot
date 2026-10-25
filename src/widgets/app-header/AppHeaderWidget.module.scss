@@ -1,0 +1,70 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  border-bottom: 1px solid $color-border;
+  background: $color-surface;
+}
+
+.branding {
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: $color-text;
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: $color-text-faint;
+}
+
+.switcher {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-surface-raised;
+}
+
+.modeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: $radius-sm;
+  background: transparent;
+  color: $color-text-muted;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  @include focus-ring;
+
+  &:hover {
+    background: $color-surface;
+    color: $color-text;
+  }
+}
+
+.modeButtonActive {
+  background: $color-accent;
+  color: #04121d;
+
+  &:hover {
+    background: $color-accent-hover;
+    color: #04121d;
+  }
+}

@@ -1,0 +1,80 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.icon {
+  width: 16px;
+  height: 16px;
+  color: $color-accent;
+}
+
+.counter {
+  padding: 2px 8px;
+  border: 1px solid $color-border;
+  border-radius: 999px;
+  background: $color-surface-raised;
+  color: $color-text-muted;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.empty {
+  margin: 0;
+  font-size: 12px;
+  color: $color-text-faint;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  max-height: 260px;
+  @include scroll-area;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  background: $color-surface-raised;
+  color: $color-text-muted;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  @include focus-ring;
+
+  &:hover {
+    border-color: $color-border-strong;
+    color: $color-text;
+  }
+}
+
+.selected {
+  border-color: $color-accent;
+  background: rgb(56 189 248 / 10%);
+  color: #7dd3fc;
+
+  &:hover {
+    border-color: $color-accent;
+    color: #7dd3fc;
+  }
+}
+
+.marker {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.hovered {
+  border-color: $color-accent;
+  background: rgb(56 189 248 / 8%);
+  color: #7dd3fc;
+  cursor: pointer;
+}

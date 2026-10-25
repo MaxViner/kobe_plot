@@ -1,0 +1,79 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.icon {
+  color: $color-accent;
+}
+
+.empty {
+  margin: 0;
+  font-size: 12px;
+  color: $color-text-faint;
+}
+
+.tableWrapper {
+  max-height: calc(100vh - 260px);
+  overflow: auto;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  @include scroll-area;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.caption {
+  padding: 8px 10px;
+  text-align: left;
+  color: $color-text-faint;
+  font-size: 11px;
+}
+
+th,
+td {
+  padding: 6px 10px;
+  border-bottom: 1px solid $color-border;
+  text-align: right;
+  white-space: nowrap;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: $color-surface-raised;
+  color: $color-text-muted;
+  font-weight: 600;
+}
+
+th:first-child,
+td:first-child {
+  text-align: left;
+}
+
+tbody tr {
+  transition: background 0.12s ease;
+
+  &:hover {
+    background: rgb(56 189 248 / 7%);
+  }
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+
+.rowHovered {
+  background: rgb(56 189 248 / 12%);
+  color: #7dd3fc;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

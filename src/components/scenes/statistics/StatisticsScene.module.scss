@@ -1,0 +1,150 @@
+@use '../../../styles/variables' as *;
+
+.scene {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  min-width: 0;
+}
+
+.sceneHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+}
+
+.sceneTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: $color-text-primary;
+  font-size: 18px;
+}
+
+.sceneMeta {
+  color: $color-text-faint;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.tableSection {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-surface;
+  box-shadow: $shadow-panel;
+}
+
+.tableTitle {
+  margin: 0 0 12px;
+  color: $color-text-primary;
+  font-size: 15px;
+}
+
+.tableScroll {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  max-height: 520px;
+  overflow: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.tableCaption {
+  padding-bottom: 8px;
+  color: $color-text-faint;
+  text-align: left;
+  font-size: 11px;
+}
+
+.table th,
+.table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid $color-border;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: $color-surface-raised;
+  color: $color-text-muted;
+  font-weight: 600;
+}
+
+.table tbody th {
+  text-align: left;
+  color: $color-text-primary;
+  font-weight: 600;
+}
+
+.tableRow {
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+
+  &:hover {
+    background: rgba($color-accent, 0.14);
+  }
+}
+
+.tableRowSelected {
+  background: rgba($color-accent, 0.18);
+}
+
+.targetCell {
+  color: $color-accent;
+}
+
+.clusterCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clusterDot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.emptyState {
+  padding: 24px 0;
+  color: $color-text-faint;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .sceneHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .tableSection {
+    padding: 12px;
+  }
+
+  .tableScroll {
+    max-height: none;
+  }
+
+  .table {
+    min-width: 640px;
+  }
+}

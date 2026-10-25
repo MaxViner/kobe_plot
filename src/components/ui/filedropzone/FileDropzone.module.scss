@@ -1,0 +1,39 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.zone {
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  border: 2px dashed $color-border-strong;
+  border-radius: $radius-md;
+  background: rgb(16 23 37 / 45%);
+  transition: border-color 0.15s ease, background 0.15s ease;
+  @include focus-ring;
+
+  &:hover {
+    border-color: $color-text-faint;
+  }
+}
+
+.dragging {
+  border-color: $color-accent;
+  background: rgb(56 189 248 / 10%);
+}
+
+.title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: $color-text;
+}
+
+.description {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: $color-text-faint;
+}
+
+.input {
+  display: none;
+}
