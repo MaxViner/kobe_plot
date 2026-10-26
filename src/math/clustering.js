@@ -255,20 +255,7 @@ const calculateMean = (values) => {
   return values.reduce((sum, value) => sum + value, 0) / values.length;
 };
 
-const calculateVariance = (values, meanValue) => {
-  if (values.length < 2) {
-    return 0;
-  }
-
-  return (
-    values.reduce(
-      (sum, value) => sum + (value - meanValue) ** 2,
-      0,
-    ) / (values.length - 1)
-  );
-};
-
-const createRadialStatistics = (points, centroid) => {
+const calculateRadialStatistics = (points, centroid) => {
   const distances = points.map((point) =>
     Math.hypot(point.x - centroid.x, point.y - centroid.y),
   );
@@ -295,79 +282,206 @@ const createRadialStatistics = (points, centroid) => {
   };
 };
 
-const createCovarianceMatrix = (points, centroid) => {
-  if (points.length < 2) {
-    return [
-      [0, 0],
-      [0, 0],
-    ];
-  }
-
-  let sumXX = 0;
-  let sumYY = 0;
-  let sumXY = 0;
-
-  points.forEach((point) => {
-    const deltaX = point.x - centroid.x;
-    const deltaY = point.y - centroid.y;
-
-    sumXX += deltaX * deltaX;
-    sumYY += deltaY * deltaY;
-    sumXY += deltaX * deltaY;
-  });
-
-  const denominator = points.length - 1;
-
-  return [
-    [sumXX / denominator, sumXY / denominator],
-    [sumXY / denominator, sumYY / denominator],
-  ];
-};
-
 const createClusterStatistics = (points, labels, centroids) =>
   centroids.map((centroid, clusterIndex) => {
     const members = points.filter(
       (_, pointIndex) => labels[pointIndex] === clusterIndex,
     );
 
-    const covariance = createCovarianceMatrix(members, centroid);
-    const radialStatistics = createRadialStatistics(
+    const radialStatistics = calculateRadialStatistics(
       members,
       centroid,
     );
 
     return {
       centroid,
-      covariance,
-      sigmaX: Math.sqrt(Math.max(covariance[0][0], 0)),
-      sigmaY: Math.sqrt(Math.max(covariance[1][1], 0)),
+      memberCount: members.length,
       rMean: radialStatistics.rMean,
       rMax: radialStatistics.rMax,
       cep50: radialStatistics.cep50,
-      memberCount: members.length,
     };
   });
 
-export const runKMeansForTarget = (shots, clusterCount = 2) => {
+// Разбивает кластеры, в которых больше maxClusterSize точек.
+const createDistancePairs = (points, centroids) => {
+  const pairs = [];
+
+  points.forEach((point, pointIndex) => {
+    centroids.forEach((centroid, clusterIndex) => {
+      pairs.push({
+        pointIndex,
+        clusterIndex,
+        distanceSquared: calculateDistanceSquared(
+          point,
+          centroid,
+        ),
+      });
+    });
+  });
+
+  return pairs.sort(
+    (first, second) =>
+      first.distanceSquared - second.distanceSquared,
+  );
+};
+
+const createCapacityAssignment = (
+  points,
+  centroids,
+  maxClusterSize,
+) => {
+  const labels = new Array(points.length).fill(-1);
+  const remainingCapacity = centroids.map(() => maxClusterSize);
+
+  const distancePairs = createDistancePairs(
+    points,
+    centroids,
+  );
+
+  distancePairs.forEach(({ pointIndex, clusterIndex }) => {
+    if (labels[pointIndex] !== -1) {
+      return;
+    }
+
+    if (remainingCapacity[clusterIndex] <= 0) {
+      return;
+    }
+
+    labels[pointIndex] = clusterIndex;
+    remainingCapacity[clusterIndex] -= 1;
+  });
+
+  return labels;
+};
+
+const hasEmptyCluster = (labels, clusterCount) => {
+  const usedClusters = new Set(labels);
+
+  for (let clusterIndex = 0; clusterIndex < clusterCount; clusterIndex += 1) {
+    if (!usedClusters.has(clusterIndex)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+const runCapacityConstrainedKMeans = (
+  points,
+  clusterCount,
+  maxClusterSize,
+) => {
+  let centroids = initializeCentroids(points, clusterCount);
+
+  let labels = createCapacityAssignment(
+    points,
+    centroids,
+    maxClusterSize,
+  );
+
+  let iterations = 0;
+
+  for (
+    let iteration = 0;
+    iteration < MAX_ITERATIONS;
+    iteration += 1
+  ) {
+    iterations = iteration + 1;
+
+    const nextCentroids = calculateCentroids(
+      points,
+      labels,
+      centroids,
+    );
+
+    centroids = nextCentroids;
+
+    const nextLabels = createCapacityAssignment(
+      points,
+      centroids,
+      maxClusterSize,
+    );
+
+    const hasChanged = nextLabels.some(
+      (label, pointIndex) => label !== labels[pointIndex],
+    );
+
+    labels = nextLabels;
+
+    if (!hasChanged) {
+      break;
+    }
+  }
+
+  return {
+    labels,
+    centroids,
+    iterations,
+  };
+};
+export const runKMeansForTarget = (
+  shots,
+  clusterCount = 2,
+  maxClusterSize = Infinity,
+) => {
   const points = (shots ?? [])
     .map((shot) => ({
-      // X из входных данных — высота.
       x: shot?.xLocal,
-
-      // Z из входных данных — боковое отклонение.
       y: shot?.zLocal,
     }))
     .filter(isValidPoint);
 
-  const result = runKMeans(points, clusterCount);
+  const safeClusterCount = normalizeClusterCount(
+    clusterCount,
+    points.length,
+  );
+
+  if (!Number.isFinite(maxClusterSize)) {
+    return runKMeans(points, safeClusterCount);
+  }
+
+  const safeMaxClusterSize = Math.max(
+    1,
+    Math.floor(maxClusterSize),
+  );
+
+  const minimumClusterCount = Math.ceil(
+    points.length / safeMaxClusterSize,
+  );
+
+  const effectiveClusterCount = Math.max(
+    safeClusterCount,
+    minimumClusterCount,
+  );
+
+  const {
+    labels,
+    centroids,
+    iterations,
+  } = runCapacityConstrainedKMeans(
+    points,
+    effectiveClusterCount,
+    safeMaxClusterSize,
+  );
+
+  const clusters = createClusterStatistics(
+    points,
+    labels,
+    centroids,
+  );
+
+  const inertia = calculateInertia(points, labels, centroids);
 
   return {
-    ...result,
-    k: Number.isFinite(Number(clusterCount))
-      ? Math.max(1, Math.floor(Number(clusterCount)))
-      : result.k,
+    k: effectiveClusterCount,
+    labels,
+    centroids,
+    clusters,
+    iterations,
+    inertia,
   };
 };
+
 
 export const kMeansCluster = runKMeansForTarget;
 export const kMeansClusterPoints = runKMeans;

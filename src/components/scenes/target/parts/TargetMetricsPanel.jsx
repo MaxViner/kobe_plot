@@ -3,7 +3,13 @@ import { MetricRow } from '../../../ui/metricrow/MetricRow.jsx';
 import { clusterColor } from '../../../../math/clustering.js';
 import styles from '../TargetDetailView.module.scss';
 
-const formatMeters = (value) => `${value.toFixed(3)} м`;
+const formatMeters = (value) => {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return '—';
+  }
+
+  return `${value.toFixed(3)} м`;
+};
 
 export function TargetMetricsPanel({
   metrics,
@@ -15,7 +21,7 @@ export function TargetMetricsPanel({
       <div className={styles.metricsCard}>
         <h3 className={styles.metricsTitle}>
           <Gauge size={14} />
-          Общая статистика
+          Общая статистика по мишени
         </h3>
 
         {metrics && (
@@ -31,23 +37,23 @@ export function TargetMetricsPanel({
             />
 
             <MetricRow
-              label="Среднее X"
+              label="Средняя  X"
               value={formatMeters(metrics.meanX)}
             />
 
             <MetricRow
-              label="Среднее Y"
-              value={formatMeters(metrics.meanY)}
+              label="Среднее боковое Z"
+              value={formatMeters(metrics.meanZ)}
             />
 
             <MetricRow
-              label="СКО X"
+              label="СКО  X"
               value={formatMeters(metrics.stdDevX)}
             />
 
             <MetricRow
-              label="СКО Y"
-              value={formatMeters(metrics.stdDevY)}
+              label="СКО  Z"
+              value={formatMeters(metrics.stdDevZ)}
             />
           </dl>
         )}
@@ -83,23 +89,23 @@ export function TargetMetricsPanel({
 
               <dl className={styles.clusterMetrics}>
                 <MetricRow
-                  label="Среднее X"
-                  value={formatMeters(cluster.centroid.x)}
+                  label="Средняя  X"
+                  value={formatMeters(cluster?.centroid?.x)}
                 />
 
                 <MetricRow
-                  label="Среднее Y"
-                  value={formatMeters(cluster.centroid.y)}
+                  label="Среднее  Z"
+                  value={formatMeters(cluster?.centroid?.y)}
                 />
 
                 <MetricRow
-                  label="СКО X"
-                  value={formatMeters(cluster.sigmaX)}
+                  label="СКО  X"
+                  value={formatMeters(cluster?.sigmaX)}
                 />
 
                 <MetricRow
-                  label="СКО Y"
-                  value={formatMeters(cluster.sigmaY)}
+                  label="СКО  Z"
+                  value={formatMeters(cluster?.sigmaY)}
                 />
               </dl>
             </article>
@@ -107,8 +113,10 @@ export function TargetMetricsPanel({
         </div>
 
         <p className={styles.clusterMeta}>
-          Итераций K-Means: {clusterResult.iterations} · инерция:{' '}
-          {clusterResult.inertia.toFixed(5)}
+          Итераций K-Means: {clusterResult?.iterations ?? 0} · инерция:{' '}
+          {Number.isFinite(clusterResult?.inertia)
+            ? clusterResult.inertia.toFixed(5)
+            : '—'}
         </p>
       </div>
     </aside>

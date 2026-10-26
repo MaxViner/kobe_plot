@@ -59,8 +59,8 @@ export function TargetShotsTable({
                                 <th scope="col">№</th>
                                 <th scope="col">Азимут (с учётом курса)</th>
                                 <th scope="col">Дальность</th>
-                                <th scope="col">Высота X</th>
-                                <th scope="col">Боковое Z</th>
+                                <th scope="col"> X </th>
+                                <th scope="col"> Z (Боковое)</th>
                               </tr>
                             </thead>
 

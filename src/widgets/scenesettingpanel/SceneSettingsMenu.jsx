@@ -8,6 +8,7 @@ const DEFAULT_SETTINGS = {
   dy: 500,
   targetRadius: 0.35,
   approachCourse: 270,
+  maxClusterSize: 24,
 };
 
 export function SceneSettingsMenu({
@@ -121,6 +122,20 @@ export function SceneSettingsMenu({
             onChange={(event) =>
               onChange({
                 targetRadius: Number(event.target.value),
+              })
+            }
+          />
+
+          <RangeField
+            label="Максимум точек в кластере"
+            displayValue={`${settings.maxClusterSize}`}
+            min={2}
+            max={100}
+            step={1}
+            value={settings.maxClusterSize}
+            onChange={(event) =>
+              onChange({
+                maxClusterSize: Number(event.target.value),
               })
             }
           />

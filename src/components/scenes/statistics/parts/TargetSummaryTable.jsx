@@ -1,6 +1,12 @@
 import styles from '../StatisticsScene.module.scss';
 
-const formatMeters = (value) => `${value.toFixed(3)} м`;
+const formatMeters = (value) => {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return '—';
+  }
+
+  return `${value.toFixed(3)} м`;
+};
 
 export function TargetSummaryTable({
   statistics,
@@ -23,11 +29,10 @@ export function TargetSummaryTable({
             <tr>
               <th scope="col">Мишень</th>
               <th scope="col">Точек</th>
-              <th scope="col">Кластеров</th>
-              <th scope="col">Среднее X</th>
-              <th scope="col">Среднее Y</th>
-              <th scope="col">СКО X</th>
-              <th scope="col">СКО Y</th>
+              <th scope="col">Средняя высота X</th>
+              <th scope="col">Среднее боковое Z</th>
+              <th scope="col">СКО высоты X</th>
+              <th scope="col">СКО бокового Z</th>
             </tr>
           </thead>
 
@@ -50,11 +55,12 @@ export function TargetSummaryTable({
                 </th>
 
                 <td>{row.shotCount}</td>
-                <td>{row.clusterCount}</td>
+
                 <td>{formatMeters(row.meanX)}</td>
-                <td>{formatMeters(row.meanY)}</td>
+                <td>{formatMeters(row.meanZ)}</td>
+
                 <td>{formatMeters(row.stdDevX)}</td>
-                <td>{formatMeters(row.stdDevY)}</td>
+                <td>{formatMeters(row.stdDevZ)}</td>
               </tr>
             ))}
           </tbody>

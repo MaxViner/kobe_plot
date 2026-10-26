@@ -14,21 +14,25 @@ import { TargetMetricsPanel } from './parts/TargetMetricsPanel.jsx';
 import styles from './TargetDetailView.module.scss';
 
 export function TargetDetailView({
-  dataset,
+ dataset,
   targetId,
   clusterCount,
+  minClusterCount,
+  maxClusterCount,
   hoveredShotId,
   onClusterCountChange,
   targetRadius = 50,
   onHoverShot,
-  onLeaveShot
+  onLeaveShot,
+  maxClusterSize = 24,
 }) {
   const shots = useTargetShots(dataset, targetId);
 
-  const { result, clusterByShotId } = useClusterAnalysis(
-    shots,
-    clusterCount,
-  );
+    const { result, clusterByShotId } = useClusterAnalysis(
+      shots,
+      clusterCount,
+      maxClusterSize
+);
 
   const { size, center, maxRadius, maxRange, toScreen } =
     useTargetRadarScale(shots);
@@ -86,15 +90,22 @@ export function TargetDetailView({
         title={`Target Inspector · ${targetId}`}
         action={
           <RangeField
-            label="Кластеров"
-            displayValue={clusterCount}
-            min={1}
-            max={8}
-            value={clusterCount}
-            onChange={(event) =>
-              onClusterCountChange(Number(event.target.value))
-            }
-          />
+        label="Кластеров"
+        displayValue={clusterCount}
+        min={minClusterCount}
+        max={10}
+        value={clusterCount}
+        onChange={(event) => {
+          const nextClusterCount = Number(event.target.value);
+
+          onClusterCountChange(
+            Math.min(
+              Math.max(nextClusterCount, minClusterCount),
+              maxClusterCount,
+            ),
+          );
+        }}
+      />
         }
       />
 

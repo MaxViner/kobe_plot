@@ -1,6 +1,8 @@
 @use '../../../styles/variables' as *;
 @use '../../../styles/mixins' as *;
 
+
+
 .scene {
   display: flex;
   flex-direction: column;
@@ -134,7 +136,7 @@
   cursor: pointer;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   .canvasWrapper {
     padding: 4px;
   }

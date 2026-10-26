@@ -21,6 +21,8 @@
   min-height: 0;
   padding: 12px;
   @include scroll-area;
+  
+
 
   @media (max-width: 900px) {
     display: flex;
@@ -32,6 +34,7 @@
 }
 
 .radarWrapper {
+  
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,11 +53,11 @@
 
 .radar {
   display: block;
-  width: 100%;
   height: auto;
   aspect-ratio: 1 / 1;
-  max-width: 640px;
+  max-width: 70%;
   margin: 0 auto;
+  overflow: visible;
 }
 
 .rangeRing {
@@ -84,8 +87,8 @@
 }
 
 .targetBoundary {
-  fill: rgba(56, 189, 248, 0.06);
-  stroke: rgba(56, 189, 248, 0.65);
+  fill: rgba(56, 248, 242, 0.133);
+  stroke: rgba(248, 56, 56, 0.85);
   stroke-width: 1.5;
   stroke-dasharray: 6 4;
   pointer-events: none;

@@ -30,20 +30,22 @@ export function useTargetMetrics(shots, clusterResult) {
       .map((shot) => shot?.xLocal)
       .filter((value) => typeof value === 'number');
 
-    const yValues = safeShots
-      .map((shot) => shot?.yLocal)
+    const zValues = safeShots
+      .map((shot) => shot?.zLocal)
       .filter((value) => typeof value === 'number');
 
     const meanX = calculateMean(xValues);
-    const meanY = calculateMean(yValues);
+    const meanZ = calculateMean(zValues);
 
     return {
       shotCount: safeShots.length,
       clusterCount: clusterResult?.k ?? 0,
+
       meanX,
-      meanY,
+      meanZ,
+
       stdDevX: calculateStdDev(xValues, meanX),
-      stdDevY: calculateStdDev(yValues, meanY),
+      stdDevZ: calculateStdDev(zValues, meanZ),
     };
   }, [shots, clusterResult]);
 }

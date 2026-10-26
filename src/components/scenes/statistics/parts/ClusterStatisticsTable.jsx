@@ -3,7 +3,7 @@ import { clusterColor } from '../../../../math/clustering.js';
 import styles from '../StatisticsScene.module.scss';
 
 const formatMeters = (value) => {
-  if (typeof value !== 'number' || Number.isNaN(value)) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
     return '—';
   }
 
@@ -51,17 +51,17 @@ export function ClusterStatisticsTable({
               <tr>
                 <th scope="col">Кластер</th>
                 <th scope="col">Точек</th>
-                <th scope="col">Среднее X</th>
-                <th scope="col">Среднее Y</th>
-                <th scope="col">СКО X</th>
-                <th scope="col">СКО Y</th>
+                <th scope="col">Средняя высота X</th>
+                <th scope="col">Среднее боковое Z</th>
+                <th scope="col">СКО высоты X</th>
+                <th scope="col">СКО бокового Z</th>
               </tr>
             </thead>
 
             <tbody>
               {clusters.map((cluster, clusterIndex) => {
                 const centroidX = cluster.centroid?.x;
-                const centroidY = cluster.centroid?.y;
+                const centroidZ = cluster.centroid?.y;
 
                 return (
                   <tr key={cluster.clusterId ?? clusterIndex}>
@@ -76,8 +76,10 @@ export function ClusterStatisticsTable({
                     </th>
 
                     <td>{cluster.memberCount ?? 0}</td>
+
                     <td>{formatMeters(centroidX)}</td>
-                    <td>{formatMeters(centroidY)}</td>
+                    <td>{formatMeters(centroidZ)}</td>
+
                     <td>{formatMeters(cluster.sigmaX)}</td>
                     <td>{formatMeters(cluster.sigmaY)}</td>
                   </tr>

@@ -24,19 +24,21 @@ const calculateStdDev = (values, meanValue) => {
 
 const buildTargetStatistics = (target, clusterResult) => {
   const xValues = target.shots.map((shot) => shot.xLocal);
-  const yValues = target.shots.map((shot) => shot.yLocal);
+  const zValues = target.shots.map((shot) => shot.zLocal);
 
   const meanX = calculateMean(xValues);
-  const meanY = calculateMean(yValues);
+  const meanZ = calculateMean(zValues);
 
   return {
     targetId: target.targetId,
     shotCount: target.shots.length,
-    clusterCount: clusterResult?.k ?? 0,
+
     meanX,
-    meanY,
+    meanZ,
+
     stdDevX: calculateStdDev(xValues, meanX),
-    stdDevY: calculateStdDev(yValues, meanY),
+    stdDevZ: calculateStdDev(zValues, meanZ),
+
     clusters: clusterResult?.clusters ?? [],
   };
 };

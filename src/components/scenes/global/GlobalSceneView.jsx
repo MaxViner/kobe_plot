@@ -10,6 +10,8 @@ import { SceneControls } from './parts/SceneControls.jsx';
 import { TargetMarker } from './parts/TargetMarker.jsx';
 import styles from './GlobalSceneView.module.scss';
 
+
+
 export function GlobalSceneView({
   dataset,
   selectedTargetId,

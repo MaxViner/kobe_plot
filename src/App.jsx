@@ -12,7 +12,7 @@ import {
 } from './features/dataset/datasetHandlers.js';
 import { useBallisticsDataset } from './features/dataset/useBallisticsDataset.js';
 import { createMockDataset } from './features/csv/csvMock.js';
-import { runKMeansForTarget } from './math/clustering.js';
+import { runKMeansForTarget } from './math/clustering/index.js';
 import styles from './styles/app.module.scss';
 import {
   GRID_COLUMNS,
@@ -22,16 +22,18 @@ import {
 export default function App() {
   const [viewMode, setViewMode] = useState('overview');
   const [selectedTargetId, setSelectedTargetId] = useState(null);
-  const [clusterCount, setClusterCount] = useState(2);
   const [error, setError] = useState(null);
   const [hoveredShotId, setHoveredShotId] = useState(null);
   const [hoveredTargetId, setHoveredTargetId] = useState(null);
+  const [clusterCountsByTargetId, setClusterCountsByTargetId] =
+    useState({});
 
   const [gridSettings, setGridSettings] = useState({
     dx: 200,
     dy: 500,
     targetRadius: 50,
     approachCourse: 270,
+    maxClusterSize: 24,
   });
 
   const initialDataset = useMemo(
@@ -48,6 +50,24 @@ export default function App() {
     gridSettings.approachCourse,
   );
 
+  const selectedShots =
+    dataset?.targetsById.get(selectedTargetId) ?? [];
+
+  const safeMaxClusterSize = Math.max(
+    1,
+    Math.floor(Number(gridSettings.maxClusterSize) || 1),
+  );
+
+  const minClusterCount = Math.max(
+    1,
+    Math.ceil(selectedShots.length / safeMaxClusterSize),
+  );
+
+  const maxClusterCount = Math.max(1, selectedShots.length);
+
+  const selectedClusterCount =
+    clusterCountsByTargetId[selectedTargetId] ?? minClusterCount;
+
   const clusterResultsByTargetId = useMemo(() => {
     if (!dataset) {
       return new Map();
@@ -56,17 +76,31 @@ export default function App() {
     const results = new Map();
     const targetIds = dataset.targetIds ?? [];
 
+    const maxClusterSize = Math.max(
+      1,
+      Math.floor(Number(gridSettings.maxClusterSize) || 1),
+    );
+
     targetIds.forEach((targetId) => {
       const shots = dataset.targetsById.get(targetId) ?? [];
 
+      const automaticClusterCount = Math.max(
+        1,
+        Math.ceil(shots.length / maxClusterSize),
+      );
+
       results.set(
         targetId,
-        runKMeansForTarget(shots, clusterCount),
+        runKMeansForTarget(
+          shots,
+          automaticClusterCount,
+          maxClusterSize
+        ),
       );
     });
 
     return results;
-  }, [dataset, clusterCount]);
+  }, [dataset, gridSettings.maxClusterSize]);
 
   const handleHoverShot = useCallback((shotId) => {
     setHoveredShotId(shotId);
@@ -126,8 +160,23 @@ export default function App() {
     setSelectedTargetId(null);
   }, []);
 
-  const selectedShots =
-    dataset?.targetsById.get(selectedTargetId) ?? [];
+  const handleGridSettingsChange = useCallback((nextSettings) => {
+    setGridSettings((previousSettings) => ({
+      ...previousSettings,
+      ...nextSettings,
+    }));
+  }, []);
+
+  const handleClusterCountChange = useCallback((nextClusterCount) => {
+    if (!selectedTargetId) {
+      return;
+    }
+
+    setClusterCountsByTargetId((previous) => ({
+      ...previous,
+      [selectedTargetId]: nextClusterCount,
+    }));
+  }, [selectedTargetId]);
 
   const statisticsTargets = useMemo(() => {
     if (!dataset) {
@@ -141,13 +190,6 @@ export default function App() {
       }),
     );
   }, [dataset]);
-
-  const handleGridSettingsChange = useCallback((nextSettings) => {
-    setGridSettings((previousSettings) => ({
-      ...previousSettings,
-      ...nextSettings,
-    }));
-  }, []);
 
   const sceneBounds = useMemo(() => {
     const halfWidth = ((GRID_COLUMNS - 1) / 2) * gridSettings.dx;
@@ -224,12 +266,14 @@ export default function App() {
             <TargetDetailView
               dataset={dataset}
               targetId={selectedTargetId}
+              clusterCount={selectedClusterCount}
+              minClusterCount={minClusterCount}
+              maxClusterCount={maxClusterCount}
+              hoveredShotId={hoveredShotId}
+              onClusterCountChange={handleClusterCountChange}
+              targetRadius={gridSettings.targetRadius}
               onHoverShot={handleHoverShot}
               onLeaveShot={handleLeaveShot}
-              clusterCount={clusterCount}
-              hoveredShotId={hoveredShotId}
-              onClusterCountChange={setClusterCount}
-              targetRadius={gridSettings.targetRadius}
             />
           )}
         </div>

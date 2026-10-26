@@ -1,13 +1,18 @@
 import { useMemo } from 'react';
-import { runKMeansForTarget } from '../../math/clustering.js';
+import { runKMeansForTarget } from '../../math/clustering/index';
 
-export function useClusterAnalysis(shots, clusterCount = 2) {
+export function useClusterAnalysis(
+  shots,
+  clusterCount = 2,
+  maxClusterSize = Infinity,
+) {
   return useMemo(() => {
     const safeShots = shots ?? [];
 
     const result = runKMeansForTarget(
       safeShots,
       clusterCount,
+      maxClusterSize
     );
 
     const clusterByShotId = new Map();
@@ -25,6 +30,7 @@ export function useClusterAnalysis(shots, clusterCount = 2) {
     return {
       result,
       clusterByShotId,
+      
     };
-  }, [shots, clusterCount]);
+  }, [shots, clusterCount, maxClusterSize]);
 }
