@@ -1,18 +1,28 @@
 import { useMemo } from 'react';
-import { runKMeansForTarget } from '../../math/clustering/index';
+import { runKMeansForTarget } from '../../../../math/clustering/index.js';
 
 export function useClusterAnalysis(
   shots,
   clusterCount = 2,
   maxClusterSize = Infinity,
+  clusteringAlgorithm = 'capacity-kmeans',
+  clusteringOptions = {},
 ) {
+  const epsilon = clusteringOptions.epsilon;
+  const minSamples = clusteringOptions.minSamples;
+
   return useMemo(() => {
     const safeShots = shots ?? [];
 
     const result = runKMeansForTarget(
       safeShots,
       clusterCount,
-      maxClusterSize
+      maxClusterSize,
+      clusteringAlgorithm,
+      {
+        epsilon,
+        minSamples,
+      },
     );
 
     const clusterByShotId = new Map();
@@ -30,7 +40,13 @@ export function useClusterAnalysis(
     return {
       result,
       clusterByShotId,
-      
     };
-  }, [shots, clusterCount, maxClusterSize]);
+  }, [
+    shots,
+    clusterCount,
+    maxClusterSize,
+    clusteringAlgorithm,
+    epsilon,
+    minSamples,
+  ]);
 }

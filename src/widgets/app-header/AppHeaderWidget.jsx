@@ -1,6 +1,7 @@
 import { Grid3x3, Radar, ChartColumn } from 'lucide-react';
 import styles from './AppHeaderWidget.module.scss';
 import {SceneSettingsMenu} from '../scenesettingpanel/SceneSettingsMenu'
+import {ClusteringSettingsMenu} from '../clustering-settings-menu/ClusteringSettingsMenu'
 
 const VIEW_MODES = [
   {
@@ -21,7 +22,9 @@ const VIEW_MODES = [
 ];
 export function AppHeaderWidget({ viewMode, onViewModeChange,
   gridSettings,
-  onGridSettingsChange
+  onGridSettingsChange,
+  clusteringSettings,
+  onClusteringSettingsChange
  }) {
   return (
     <header className={styles.header}>
@@ -36,6 +39,10 @@ export function AppHeaderWidget({ viewMode, onViewModeChange,
             settings={gridSettings}
             onChange={onGridSettingsChange}
           />
+          <ClusteringSettingsMenu
+          settings={clusteringSettings}
+          onChange={onClusteringSettingsChange}
+        />
         </div>
       <nav
         className={styles.switcher}

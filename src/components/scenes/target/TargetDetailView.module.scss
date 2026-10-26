@@ -189,6 +189,7 @@
   gap: 12px;
   min-height: 0;
   @include scroll-area;
+  max-height: 90dvh;
 
   @media (max-width: 900px) {
     min-height: auto;

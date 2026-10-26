@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Radar } from 'lucide-react';
 import { RangeField } from '../../ui/rangeField/RangeField.jsx';
 import { SectionHeader } from '../../ui/sectionheader/SectionHeader.jsx';
-import { useClusterAnalysis } from '../../../features/clustering/useClusterAnalysis.js';
+import { useClusterAnalysis } from './hooks/useClusterAnalysis.js';
 import { useTargetShots } from './hooks/useTargetShots.js';
 import { useTargetRadarScale } from './hooks/useTargetRadarScale.js';
 import { useTargetMetrics } from './hooks/useTargetMetrics.js';

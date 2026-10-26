@@ -8,7 +8,6 @@ const DEFAULT_SETTINGS = {
   dy: 500,
   targetRadius: 0.35,
   approachCourse: 270,
-  maxClusterSize: 24,
 };
 
 export function SceneSettingsMenu({
@@ -61,7 +60,7 @@ export function SceneSettingsMenu({
         aria-expanded={isOpen}
         aria-controls="scene-settings-panel"
       >
-        <Settings2 size={14} />
+        <Settings2 size={28} />
         Настройки сетки
       </button>
 
@@ -126,20 +125,7 @@ export function SceneSettingsMenu({
             }
           />
 
-          <RangeField
-            label="Максимум точек в кластере"
-            displayValue={`${settings.maxClusterSize}`}
-            min={2}
-            max={100}
-            step={1}
-            value={settings.maxClusterSize}
-            onChange={(event) =>
-              onChange({
-                maxClusterSize: Number(event.target.value),
-              })
-            }
-          />
-
+        
           <button
             type="button"
             className={styles.resetButton}

@@ -1,13 +1,12 @@
 import { isValidPoint } from './pointUtils.js';
-
-import { runKMeans } from './runKMeans.js';
-
-import { runCapacityConstrainedKMeans } from './runCapacityConstrainedKMeans.js';
+import { getClusteringAlgorithm } from './registry.js';
 
 export const runKMeansForTarget = (
   shots,
   clusterCount = 2,
   maxClusterSize = Infinity,
+  algorithmId = 'capacity-kmeans',
+  algorithmOptions = {},
 ) => {
   const points = (shots ?? [])
     .map((shot) => ({
@@ -16,13 +15,12 @@ export const runKMeansForTarget = (
     }))
     .filter(isValidPoint);
 
-  if (!Number.isFinite(maxClusterSize)) {
-    return runKMeans(points, clusterCount);
-  }
+  const algorithm = getClusteringAlgorithm(algorithmId);
 
-  return runCapacityConstrainedKMeans(
+  return algorithm.run({
     points,
     clusterCount,
     maxClusterSize,
-  );
+    ...algorithmOptions,
+  });
 };
