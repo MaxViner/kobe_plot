@@ -55,13 +55,14 @@ const createShot = ({
 
   const local = {
     x: cluster.offsetX + Math.cos(angle) * radius,
-    y: cluster.offsetY + Math.sin(angle) * radius * 0.8,
+    z: cluster.offsetY + Math.sin(angle) * radius * 0.8,
   };
 
   const global = toGlobalPoint(row, col, local, metadata);
-  const azimuthRad = Math.atan2(local.x, local.y);
+
+  const azimuthRad = Math.atan2(local.z, local.x);
   const azimuthDeg = ((azimuthRad * 180) / Math.PI + 360) % 360;
-  const rangeM = Math.hypot(local.x, local.y);
+  const rangeM = Math.hypot(local.x, local.z);
 
   return {
     id: `${targetId}-${index + 1}`,
@@ -73,7 +74,7 @@ const createShot = ({
     azimuthDeg,
     rangeM,
     xLocal: local.x,
-    yLocal: local.y,
+    zLocal: local.z,
     xGlobal: global.x,
     yGlobal: global.y,
     seriesId: cluster.seriesId,
@@ -94,7 +95,11 @@ export const createMockDataset = () => {
   const shots = [];
 
   MOCK_METADATA.lineNumbers.forEach((lineNumber, row) => {
-    for (let targetIndex = 0; targetIndex < metadata.gridCols; targetIndex += 1) {
+    for (
+      let targetIndex = 0;
+      targetIndex < metadata.gridCols;
+      targetIndex += 1
+    ) {
       const targetNumber = targetIndex + 1;
       const targetId = createTargetId(lineNumber, targetNumber);
 

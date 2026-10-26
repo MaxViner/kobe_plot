@@ -19,6 +19,9 @@ export function TargetDetailView({
   clusterCount,
   hoveredShotId,
   onClusterCountChange,
+  targetRadius = 50,
+  onHoverShot,
+  onLeaveShot
 }) {
   const shots = useTargetShots(dataset, targetId);
 
@@ -55,8 +58,17 @@ export function TargetDetailView({
       };
     }
 
-    return toScreen(activeShot.xLocal, activeShot.yLocal);
-  }, [activeShot, center, toScreen]);
+  return toScreen(activeShot.zLocal, activeShot.xLocal);  }, [activeShot, center, toScreen]);
+
+  const targetScreenRadius = useMemo(() => {
+    const maxTargetRange = Math.max(
+      maxRange,
+      targetRadius,
+      Number.EPSILON,
+    );
+
+    return (targetRadius / maxTargetRange) * maxRadius;
+  }, [maxRange, maxRadius, targetRadius]);
 
   if (!targetId || shots.length === 0) {
     return (
@@ -86,77 +98,86 @@ export function TargetDetailView({
         }
       />
 
- <div className={styles.content}>
-  <div className={styles.radarWrapper}>
-    <svg
-      viewBox={`0 0 ${size} ${size}`}
-      className={styles.radar}
-      role="img"
-      aria-label={`Полярная сетка и кластеры мишени ${targetId}`}
-    >
-      <defs>
-        <filter
-          id="shot-hover-glow"
-          x="-75%"
-          y="-75%"
-          width="250%"
-          height="250%"
-        >
-          <feGaussianBlur
-            in="SourceGraphic"
-            stdDeviation="4"
-            result="blurredShot"
-          />
+      <div className={styles.content}>
+        <div className={styles.radarWrapper}>
+          <svg
+            viewBox={`0 0 ${size} ${size}`}
+            className={styles.radar}
+            role="img"
+            aria-label={`Полярная сетка и кластеры мишени ${targetId}`}
+          >
+            <defs>
+              <filter
+                id="shot-hover-glow"
+                x="-75%"
+                y="-75%"
+                width="250%"
+                height="250%"
+              >
+                <feGaussianBlur
+                  in="SourceGraphic"
+                  stdDeviation="4"
+                  result="blurredShot"
+                />
 
-          <feMerge>
-            <feMergeNode in="blurredShot" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
+                <feMerge>
+                  <feMergeNode in="blurredShot" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
 
-      <RadarGrid
-        size={size}
-        center={center}
-        maxRadius={maxRadius}
-      />
+            <RadarGrid
+              size={size}
+              center={center}
+              maxRadius={maxRadius}
+            />
 
-      <ClusterLayer
-        clusters={result.clusters}
-        toScreen={toScreen}
-        rangeToScreenScale={maxRadius / maxRange}
-      />
+            <circle
+              cx={center}
+              cy={center}
+              r={targetScreenRadius}
+              className={styles.targetBoundary}
+            />
 
-      <ShotLayer
-        shots={shots}
-        clusterByShotId={clusterByShotId}
-        hoveredShotId={hoveredShotId}
-        toScreen={toScreen}
-      />
+            <ClusterLayer
+              clusters={result.clusters}
+              toScreen={toScreen}
+              rangeToScreenScale={maxRadius / maxRange}
+            />
 
-      <HoveredShotLayer
-        shot={activeShot}
-        shotIndex={hoveredShotIndex}
-        point={activePoint}
-        center={center}
-        isVisible={Boolean(hoveredShot)}
-      />
+            <ShotLayer
+              shots={shots}
+              clusterByShotId={clusterByShotId}
+              hoveredShotId={hoveredShotId}
+              toScreen={toScreen}
+              onHoverShot={onHoverShot}
+              onLeaveShot={onLeaveShot}
+            />
 
-      <circle
-        cx={center}
-        cy={center}
-        r={4}
-        className={styles.origin}
-      />
-    </svg>
-  </div>
+            <HoveredShotLayer
+              shot={activeShot}
+              shotIndex={hoveredShotIndex}
+              point={activePoint}
+              center={center}
+              isVisible={Boolean(hoveredShot)}
+            />
 
-  <TargetMetricsPanel
-    metrics={metrics}
-    clusters={result.clusters}
-    clusterResult={result}
-  />
-</div>
+            <circle
+              cx={center}
+              cy={center}
+              r={4}
+              className={styles.origin}
+            />
+          </svg>
+        </div>
+
+        <TargetMetricsPanel
+          metrics={metrics}
+          clusters={result.clusters}
+          clusterResult={result}
+        />
+      </div>
     </section>
   );
 }

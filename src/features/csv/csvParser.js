@@ -69,6 +69,7 @@ const extractMetadataAndCsv = (csvText) => {
     const key = normalizeHeader(
       withoutComment.slice(0, separatorIndex),
     );
+
     const rawValue = withoutComment.slice(separatorIndex + 1);
     const value = parseFiniteNumber(rawValue);
 
@@ -292,7 +293,8 @@ export const parseBallisticsCsv = (csvText, fileName) => {
       rangeM,
 
       xLocal: local.x,
-      yLocal: local.y,
+      zLocal: local.z,
+
       xGlobal: global.x,
       yGlobal: global.y,
 

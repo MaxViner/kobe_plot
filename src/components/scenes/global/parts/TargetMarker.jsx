@@ -13,6 +13,20 @@ export function TargetMarker({
 }) {
   const isHighlighted = isSelected || isHovered;
 
+  const centerX = Number.isFinite(target.centerX)
+    ? target.centerX
+    : 0;
+
+  const centerY = Number.isFinite(target.centerY)
+    ? target.centerY
+    : 0;
+
+  const radius = Number.isFinite(targetRadius)
+    ? targetRadius
+    : 0;
+
+  const labelY = centerY - radius - 18;
+
   return (
     <g
       className={[
@@ -33,26 +47,25 @@ export function TargetMarker({
       }}
     >
       <circle
-        cx={target.centerX}
-        cy={target.centerY}
-        r={targetRadius}
+        cx={centerX}
+        cy={centerY}
+        r={radius}
         className={styles.targetHitArea}
       />
 
       {isHighlighted && (
         <circle
-          cx={target.centerX}
-          cy={target.centerY}
-          r={targetRadius}
+          cx={centerX}
+          cy={centerY}
+          r={radius}
           className={styles.targetGlow}
-          filter="url(#target-hover-glow)"
         />
       )}
 
       <circle
-        cx={target.centerX}
-        cy={target.centerY}
-        r={targetRadius}
+        cx={centerX}
+        cy={centerY}
+        r={radius}
         className={[
           styles.targetRing,
           isHighlighted ? styles.targetRingHighlighted : '',
@@ -62,9 +75,9 @@ export function TargetMarker({
       />
 
       <circle
-        cx={target.centerX}
-        cy={target.centerY}
-        r={targetRadius * 0.07}
+        cx={centerX}
+        cy={centerY}
+        r={Math.max(radius * 0.07, 1)}
         className={[
           styles.targetCenter,
           isHighlighted ? styles.targetCenterHighlighted : '',
@@ -73,16 +86,16 @@ export function TargetMarker({
           .join(' ')}
       />
 
-        <TargetShots
-      target={target}
-      shots={target.shots}
-      radius={targetRadius}
-      highlighted={isHighlighted}
-    />
+      <TargetShots
+        target={target}
+        shots={target.shots}
+        radius={radius}
+        highlighted={isHighlighted}
+      />
 
       <text
-        x={target.centerX}
-        y={target.centerY - targetRadius -18}
+        x={centerX}
+        y={labelY}
         textAnchor="middle"
         className={[
           styles.targetLabel,

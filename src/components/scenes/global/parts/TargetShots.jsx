@@ -25,25 +25,43 @@ export function TargetShots({
     return null;
   }
 
+  const centerX = Number.isFinite(target.centerX)
+    ? target.centerX
+    : 0;
+
+  const centerY = Number.isFinite(target.centerY)
+    ? target.centerY
+    : 0;
+
   return (
     <>
-      {shots.map((shot, index) => (
-        <circle
-          key={shot.id}
-          cx={target.centerX + shot.xLocal}
-          cy={target.centerY + shot.yLocal}
-          r={Math.max(radius * 0.055, 1)}
-          className={[
-            styles.shot,
-            highlighted ? styles.shotHighlighted : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          style={{
-            fill: getShotColor(shot, index),
-          }}
-        />
-      ))}
+      {shots.map((shot, index) => {
+        const shotX = Number.isFinite(shot.zLocal)
+          ? shot.zLocal
+          : 0;
+
+        const shotY = Number.isFinite(shot.xLocal)
+          ? shot.xLocal
+          : 0;
+
+        return (
+          <circle
+            key={shot.id}
+            cx={centerX + shotX}
+            cy={centerY + shotY}
+            r={Math.max(radius * 0.055, 3)}
+            className={[
+              styles.shot,
+              highlighted ? styles.shotHighlighted : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            style={{
+              fill: getShotColor(shot, index),
+            }}
+          />
+        );
+      })}
     </>
   );
 }

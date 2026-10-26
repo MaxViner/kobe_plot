@@ -6,6 +6,7 @@
   flex-direction: column;
   gap: 12px;
   min-height: 0;
+  height: 100dvh;
   @include scroll-area;
 
   @media (max-width: 1024px) {

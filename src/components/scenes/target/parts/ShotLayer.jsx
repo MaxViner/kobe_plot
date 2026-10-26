@@ -9,11 +9,13 @@ export function ShotLayer({
   clusterByShotId,
   hoveredShotId,
   toScreen,
+  onHoverShot,
+  onLeaveShot,
 }) {
   return (
     <>
       {shots.map((shot) => {
-        const point = toScreen(shot.xLocal, shot.yLocal);
+        const point = toScreen(shot.zLocal, shot.xLocal);
         const clusterIndex = clusterByShotId.get(shot.id) ?? 0;
         const isHovered = shot.id === hoveredShotId;
 
@@ -32,6 +34,8 @@ export function ShotLayer({
             style={{
               fill: clusterColor(clusterIndex),
             }}
+            onMouseEnter={() => onHoverShot?.(shot.id)}
+            onMouseLeave={() => onLeaveShot?.()}
           />
         );
       })}

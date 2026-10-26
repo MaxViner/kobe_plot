@@ -3,16 +3,11 @@ import { Settings2 } from 'lucide-react';
 import { RangeField } from '../../components/ui/rangeField/RangeField';
 import styles from './SceneSettingsMenu.module.scss';
 
-const GRID_COLUMNS = 9;
-const GRID_ROWS = 5;
-
-const CENTER_COLUMN = Math.ceil(GRID_COLUMNS / 2);
-const CENTER_ROW = Math.ceil(GRID_ROWS / 2);
-
 const DEFAULT_SETTINGS = {
-  dx: 1,
-  dy: 1,
+  dx: 200,
+  dy: 500,
   targetRadius: 0.35,
+  approachCourse: 270,
 };
 
 export function SceneSettingsMenu({
@@ -75,7 +70,21 @@ export function SceneSettingsMenu({
           className={styles.panel}
         >
           <RangeField
-            label="Шаг по X"
+            label="Курс захода"
+            displayValue={`${settings.approachCourse}°`}
+            min={0}
+            max={360}
+            step={1}
+            value={settings.approachCourse}
+            onChange={(event) =>
+              onChange({
+                approachCourse: Number(event.target.value),
+              })
+            }
+          />
+
+          <RangeField
+            label="Шаг по Z"
             displayValue={`${settings.dx} м`}
             min={0.1}
             max={1000}
@@ -89,7 +98,7 @@ export function SceneSettingsMenu({
           />
 
           <RangeField
-            label="Шаг по Y"
+            label="Шаг по Х"
             displayValue={`${settings.dy} м`}
             min={0.1}
             max={1000}

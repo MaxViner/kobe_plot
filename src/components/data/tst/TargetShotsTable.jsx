@@ -51,18 +51,18 @@ export function TargetShotsTable({
       <div className={styles.tableScroll}>
                     <table className={styles.table}>
                     <caption className={styles.tableCaption}>
-                        Исходные полярные координаты и рассчитанные декартовы координаты
-                    </caption>
+              Полярные координаты и декартовы координаты с учётом курса захода
+            </caption>
 
                     <thead>
-                        <tr>
-                        <th scope="col">№</th>
-                        <th scope="col">Азимут</th>
-                        <th scope="col">Дальность</th>
-                        <th scope="col">X</th>
-                        <th scope="col">Y</th>
-                        </tr>
-                    </thead>
+                              <tr>
+                                <th scope="col">№</th>
+                                <th scope="col">Азимут (с учётом курса)</th>
+                                <th scope="col">Дальность</th>
+                                <th scope="col">Высота X</th>
+                                <th scope="col">Боковое Z</th>
+                              </tr>
+                            </thead>
 
                     <TargetTableBody
                         shots={formattedShots}

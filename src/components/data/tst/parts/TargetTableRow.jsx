@@ -17,25 +17,11 @@ export function TargetTableRow({
       onMouseEnter={() => onHoverShot(shot.id)}
       onMouseLeave={onLeaveShot}
     >
-      <td className={styles.tableCell}>
-        {shot.displayNumber}
-      </td>
-
-      <td className={styles.tableCell}>
-        {shot.displayAzimuth}
-      </td>
-
-      <td className={styles.tableCell}>
-        {shot.displayRange}
-      </td>
-
-      <td className={styles.tableCell}>
-        {shot.displayX}
-      </td>
-
-      <td className={styles.tableCell}>
-        {shot.displayY}
-      </td>
+      <td>{shot.displayNumber}</td>
+<td>{shot.displayAzimuth}</td>
+<td>{shot.displayRange}</td>
+<td>{shot.displayHeight}</td>
+<td>{shot.displayLateral}</td>
     </tr>
   );
 }

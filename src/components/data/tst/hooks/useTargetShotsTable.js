@@ -8,10 +8,12 @@ const formatNumber = (value) => {
   return value.toFixed(3);
 };
 
-const getCoordinate = (shot, primary, fallback) => {
-  const value = shot?.[primary] ?? shot?.[fallback];
+const formatAzimuth = (value) => {
+  if (typeof value !== 'number' || Number.isNaN(value)) {
+    return '—';
+  }
 
-  return typeof value === 'number' ? value : null;
+  return `${value.toFixed(1)}°`;
 };
 
 export function useTargetShotsTable({ shots, targetIds, targetId }) {
@@ -26,29 +28,26 @@ export function useTargetShotsTable({ shots, targetIds, targetId }) {
       : null;
 
   const formattedShots = useMemo(
-  () =>
-    (shots ?? []).map((shot, index) => ({
-      ...shot,
-      displayNumber: index + 1,
-      displayAzimuth:
-        typeof shot.azimuth === 'number'
-          ? `${shot.azimuth.toFixed(1)}°`
-          : '—',
-      displayRange:
-        typeof shot.range === 'number'
-          ? `${shot.range.toFixed(3)} м`
-          : '—',
-      displayX:
-        typeof shot.xLocal === 'number'
-          ? `${shot.xLocal.toFixed(3)} м`
-          : '—',
-      displayY:
-        typeof shot.yLocal === 'number'
-          ? `${shot.yLocal.toFixed(3)} м`
-          : '—',
-    })),
-  [shots],
-);
+    () =>
+      (shots ?? []).map((shot, index) => ({
+        ...shot,
+
+        displayNumber: index + 1,
+
+        displayAzimuth: formatAzimuth(
+          shot.azimuth ?? shot.relativeAzimuth ?? shot.azimuthDeg,
+        ),
+
+        displayRange: formatNumber(
+          shot.rangeM ?? shot.range,
+        ),
+
+        displayHeight: formatNumber(shot.xLocal),
+
+        displayLateral: formatNumber(shot.zLocal),
+      })),
+    [shots],
+  );
 
   return {
     currentIndex,

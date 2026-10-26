@@ -16,7 +16,7 @@ export function GlobalSceneView({
   hoveredTargetId,
   onSelectTarget,
   gridSettings,
-  sceneBounds
+  sceneBounds,
 }) {
   const { svgRef, zoomGroupRef, zoomByFactor, resetView, focusPoint } =
     useSceneZoom();
@@ -24,23 +24,24 @@ export function GlobalSceneView({
   const { internalHoveredTargetId, handleMouseEnter, handleMouseLeave } =
     useTargetHover();
 
-  const effectiveMetadata = {
-    ...dataset.metadata,
-    dx: gridSettings?.dx ?? dataset.metadata.dx,
-    dy: gridSettings?.dy ?? dataset.metadata.dy,
+  const effectiveGridSettings = {
+    dx: gridSettings?.dx ?? 200,
+    dy: gridSettings?.dy ?? 500,
+    targetRadius: gridSettings?.targetRadius ?? 0.35,
+    approachCourse: gridSettings?.approachCourse ?? 270,
   };
 
   const fitTransform = useSceneFit(sceneBounds);
 
   const { targets, gridLines } = useSceneModel(
     dataset,
-    effectiveMetadata,
+    effectiveGridSettings,
   );
 
   const targetRadius = Math.max(
-    effectiveMetadata.targetRadiusM ?? 0,
-    (dataset.bounds.maxX - dataset.bounds.minX) * 0.02,
-    (dataset.bounds.maxY - dataset.bounds.minY) * 0.02,
+    effectiveGridSettings.targetRadius,
+    (sceneBounds.maxX - sceneBounds.minX) * 0.02,
+    (sceneBounds.maxY - sceneBounds.minY) * 0.02,
   );
 
   const handleFocusTarget = (target) => {
@@ -80,7 +81,7 @@ export function GlobalSceneView({
             <g transform={fitTransform}>
               <SceneGrid
                 gridLines={gridLines}
-                 bounds={sceneBounds}
+                bounds={sceneBounds}
               />
 
               {targets.map((target) => (

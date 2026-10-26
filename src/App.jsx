@@ -26,15 +26,26 @@ export default function App() {
   const [error, setError] = useState(null);
   const [hoveredShotId, setHoveredShotId] = useState(null);
   const [hoveredTargetId, setHoveredTargetId] = useState(null);
-  
-  const [gridSettings, setGridSettings] = useState({
-      dx: 200,
-      dy: 500,
-      targetRadius: 50,
-    });
 
-  const { parsedDataset, dataset, loadDataset } = useBallisticsDataset(
-    createMockDataset(),
+  const [gridSettings, setGridSettings] = useState({
+    dx: 200,
+    dy: 500,
+    targetRadius: 50,
+    approachCourse: 270,
+  });
+
+  const initialDataset = useMemo(
+    () => createMockDataset(),
+    [],
+  );
+
+  const {
+    dataset,
+    parsedDataset,
+    loadDataset,
+  } = useBallisticsDataset(
+    initialDataset,
+    gridSettings.approachCourse,
   );
 
   const clusterResultsByTargetId = useMemo(() => {
@@ -43,10 +54,6 @@ export default function App() {
     }
 
     const results = new Map();
-    
-  
-
-
     const targetIds = dataset.targetIds ?? [];
 
     targetIds.forEach((targetId) => {
@@ -142,18 +149,17 @@ export default function App() {
     }));
   }, []);
 
-const sceneBounds = useMemo(() => {
-  const halfWidth = ((GRID_COLUMNS - 1) / 2) * gridSettings.dx;
-  const halfHeight = ((GRID_ROWS - 1) / 2) * gridSettings.dy;
+  const sceneBounds = useMemo(() => {
+    const halfWidth = ((GRID_COLUMNS - 1) / 2) * gridSettings.dx;
+    const halfHeight = ((GRID_ROWS - 1) / 2) * gridSettings.dy;
 
-  return {
-    minX: -halfWidth,
-    maxX: halfWidth,
-    minY: -halfHeight,
-    maxY: halfHeight,
-  };
-}, [gridSettings]);
-
+    return {
+      minX: -halfWidth,
+      maxX: halfWidth,
+      minY: -halfHeight,
+      maxY: halfHeight,
+    };
+  }, [gridSettings]);
 
   return (
     <div className={styles.root}>
@@ -161,7 +167,7 @@ const sceneBounds = useMemo(() => {
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         gridSettings={gridSettings}
-  onGridSettingsChange={handleGridSettingsChange}
+        onGridSettingsChange={handleGridSettingsChange}
       />
 
       <main className={styles.main}>
@@ -218,9 +224,12 @@ const sceneBounds = useMemo(() => {
             <TargetDetailView
               dataset={dataset}
               targetId={selectedTargetId}
+              onHoverShot={handleHoverShot}
+              onLeaveShot={handleLeaveShot}
               clusterCount={clusterCount}
               hoveredShotId={hoveredShotId}
               onClusterCountChange={setClusterCount}
+              targetRadius={gridSettings.targetRadius}
             />
           )}
         </div>

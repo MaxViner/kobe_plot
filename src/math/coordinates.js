@@ -2,8 +2,15 @@ export const DEG_TO_RAD = Math.PI / 180;
 export const RAD_TO_DEG = 180 / Math.PI;
 
 export const degToRad = (degrees) => degrees * DEG_TO_RAD;
-
 export const radToDeg = (radians) => radians * RAD_TO_DEG;
+
+export const normalizeAngle = (angle) => {
+  const normalized = angle % 360;
+
+  return normalized < 0
+    ? normalized + 360
+    : normalized;
+};
 
 export const polarToLocal = (azimuthDeg, rangeM) => {
   if (!Number.isFinite(azimuthDeg) || !Number.isFinite(rangeM)) {
@@ -21,8 +28,11 @@ export const polarToLocal = (azimuthDeg, rangeM) => {
   const azimuthRad = degToRad(azimuthDeg);
 
   return {
-    x: rangeM * Math.sin(azimuthRad),
-    y: rangeM * Math.cos(azimuthRad),
+    // X — высота (вверх).
+    x: rangeM * Math.cos(azimuthRad),
+
+    // Z — боковое отклонение.
+    z: rangeM * Math.sin(azimuthRad),
   };
 };
 
@@ -32,7 +42,7 @@ export const localToPolar = (x, y) => {
   }
 
   const rangeM = Math.hypot(x, y);
-  const azimuthRad = Math.atan2(x, y);
+  const azimuthRad = Math.atan2(y, x);
   const azimuthDeg = (radToDeg(azimuthRad) + 360) % 360;
 
   return {
@@ -68,18 +78,21 @@ export const toGlobalPoint = (row, col, localPoint, metadata) => {
   if (
     !localPoint ||
     !Number.isFinite(localPoint.x) ||
-    !Number.isFinite(localPoint.y)
+    !Number.isFinite(localPoint.z)
   ) {
     throw new Error(
-      'toGlobalPoint: localPoint.x и localPoint.y обязательны',
+      'toGlobalPoint: localPoint.x и localPoint.z обязательны',
     );
   }
 
   const center = targetCenter(row, col, metadata);
 
   return {
-    x: center.x + localPoint.x,
-    y: center.y + localPoint.y,
+    // Z — вбок, поэтому X сцены.
+    x: center.x + localPoint.z,
+
+    // X — вверх, поэтому Y сцены.
+    y: center.y + localPoint.x,
   };
 };
 
@@ -144,19 +157,35 @@ export const computeBounds = (shots) => {
   };
 };
 
-export const transformDataset = (parsedDataset) => {
+export const transformDataset = (
+  parsedDataset,
+  metadataOverrides = {},
+) => {
   if (!parsedDataset || !Array.isArray(parsedDataset.shots)) {
     throw new Error(
       'transformDataset: ожидается объект с массивом shots',
     );
   }
 
-  const { metadata, shots } = parsedDataset;
+  const metadata = {
+    ...parsedDataset.metadata,
+    ...metadataOverrides,
+  };
+
+  const approachCourse = metadata.approachCourse ?? 270;
+
+  const { shots } = parsedDataset;
   const targetsById = new Map();
 
   for (const sourceShot of shots) {
+    // Единственная новая операция:
+    // из исходного азимута вычитаем курс захода.
+    const correctedAzimuth = normalizeAngle(
+      sourceShot.azimuthDeg - approachCourse,
+    );
+
     const local = polarToLocal(
-      sourceShot.azimuthDeg,
+      correctedAzimuth,
       sourceShot.rangeM,
     );
 
@@ -167,18 +196,20 @@ export const transformDataset = (parsedDataset) => {
       metadata,
     );
 
-    const shot = {
-      ...sourceShot,
+      const shot = {
+        ...sourceShot,
 
-      azimuth: sourceShot.azimuthDeg,
-      range: sourceShot.rangeM,
-      rLocal: sourceShot.rangeM,
+        azimuth: correctedAzimuth,
+        relativeAzimuth: correctedAzimuth,
+        range: sourceShot.rangeM,
+        rLocal: sourceShot.rangeM,
 
-      xLocal: local.x,
-      yLocal: local.y,
-      xGlobal: global.x,
-      yGlobal: global.y,
-    };
+        xLocal: local.x,
+        zLocal: local.z,
+
+        xGlobal: global.x,
+        yGlobal: global.y,
+      };
 
     const targetShots = targetsById.get(shot.targetId);
 
@@ -199,11 +230,14 @@ export const transformDataset = (parsedDataset) => {
     a.localeCompare(b, undefined, { numeric: true }),
   );
 
+  const allShots = [...targetsById.values()].flat();
+
   return {
     ...parsedDataset,
-    shots: [...targetsById.values()].flat(),
+    metadata,
+    shots: allShots,
     targetsById,
     targetIds,
-    bounds: computeBounds([...targetsById.values()].flat()),
+    bounds: computeBounds(allShots),
   };
 };

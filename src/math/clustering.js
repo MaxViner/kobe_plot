@@ -284,7 +284,7 @@ const createRadialStatistics = (points, centroid) => {
       ? 0
       : sortedDistances.length % 2 === 0
         ? (sortedDistances[medianIndex - 1] +
-            sortedDistances[medianIndex]) /
+          sortedDistances[medianIndex]) /
           2
         : sortedDistances[medianIndex];
 
@@ -324,64 +324,6 @@ const createCovarianceMatrix = (points, centroid) => {
   ];
 };
 
-const createCoverageEllipse = (points, centroid, covariance) => {
-  const varianceX = covariance[0][0];
-  const varianceY = covariance[1][1];
-  const covarianceXY = covariance[0][1];
-
-  const trace = varianceX + varianceY;
-  const determinant = varianceX * varianceY - covarianceXY ** 2;
-
-  const discriminant = Math.max(
-    (trace * trace) / 4 - determinant,
-    0,
-  );
-
-  const root = Math.sqrt(discriminant);
-
-  const eigenvalue1 = Math.max(trace / 2 + root, 0);
-  const eigenvalue2 = Math.max(trace / 2 - root, 0);
-
-  const isCircular =
-    Math.abs(covarianceXY) < 1e-12 &&
-    Math.abs(varianceX - varianceY) < 1e-12;
-
-  const rotationRadians = isCircular
-    ? 0
-    : 0.5 * Math.atan2(2 * covarianceXY, varianceX - varianceY);
-
-  let coverageFactor = 2;
-
-  if (points.length > 0 && determinant > 1e-12) {
-    const inverseDeterminant = 1 / determinant;
-
-    coverageFactor = points.reduce((maxFactor, point) => {
-      const deltaX = point.x - centroid.x;
-      const deltaY = point.y - centroid.y;
-
-      const mahalanobisSquared =
-        deltaX * deltaX * varianceY -
-        2 * deltaX * deltaY * covarianceXY +
-        deltaY * deltaY * varianceX;
-
-      const factor = Math.sqrt(
-        Math.max(mahalanobisSquared * inverseDeterminant, 0),
-      );
-
-      return Math.max(maxFactor, factor);
-    }, coverageFactor);
-  }
-
-  return {
-    cx: centroid.x,
-    cy: centroid.y,
-    radiusX: coverageFactor * Math.sqrt(eigenvalue1),
-    radiusY: coverageFactor * Math.sqrt(eigenvalue2),
-    rotationDeg: rotationRadians * (180 / Math.PI),
-    coverageFactor,
-  };
-};
-
 const createClusterStatistics = (points, labels, centroids) =>
   centroids.map((centroid, clusterIndex) => {
     const members = points.filter(
@@ -402,11 +344,6 @@ const createClusterStatistics = (points, labels, centroids) =>
       rMean: radialStatistics.rMean,
       rMax: radialStatistics.rMax,
       cep50: radialStatistics.cep50,
-      ellipse: createCoverageEllipse(
-        members,
-        centroid,
-        covariance,
-      ),
       memberCount: members.length,
     };
   });
@@ -414,8 +351,11 @@ const createClusterStatistics = (points, labels, centroids) =>
 export const runKMeansForTarget = (shots, clusterCount = 2) => {
   const points = (shots ?? [])
     .map((shot) => ({
+      // X из входных данных — высота.
       x: shot?.xLocal,
-      y: shot?.yLocal,
+
+      // Z из входных данных — боковое отклонение.
+      y: shot?.zLocal,
     }))
     .filter(isValidPoint);
 
@@ -429,10 +369,5 @@ export const runKMeansForTarget = (shots, clusterCount = 2) => {
   };
 };
 
-// Совместимость со старым кодом:
-// import { kMeansCluster } from '.../clustering.js';
 export const kMeansCluster = runKMeansForTarget;
-
-// Если useClusterAnalysis передаёт уже готовые точки { x, y },
-// используйте этот алиас:
 export const kMeansClusterPoints = runKMeans;

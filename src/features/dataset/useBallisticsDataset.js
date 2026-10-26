@@ -1,12 +1,20 @@
 import { useCallback, useMemo, useState } from 'react';
 import { transformDataset } from '../../math/coordinates';
 
-export function useBallisticsDataset(initialDataset = null) {
+export function useBallisticsDataset(
+  initialDataset = null,
+  approachCourse = 270,
+) {
   const [parsedDataset, setParsedDataset] = useState(initialDataset);
 
   const dataset = useMemo(
-    () => (parsedDataset ? transformDataset(parsedDataset) : null),
-    [parsedDataset],
+    () =>
+      parsedDataset
+        ? transformDataset(parsedDataset, {
+            approachCourse,
+          })
+        : null,
+    [parsedDataset, approachCourse],
   );
 
   const targets = useMemo(

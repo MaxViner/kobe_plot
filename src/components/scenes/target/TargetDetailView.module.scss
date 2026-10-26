@@ -21,7 +21,6 @@
   min-height: 0;
   padding: 12px;
   @include scroll-area;
-  
 
   @media (max-width: 900px) {
     display: flex;
@@ -37,6 +36,7 @@
   align-items: center;
   justify-content: center;
   min-height: 0;
+  height: 100dvh;
   padding: 8px;
   border-radius: $radius-md;
   background: #111827;
@@ -83,15 +83,35 @@
   user-select: none;
 }
 
-.clusterEllipse {
-  fill-opacity: 0.07;
-  stroke-opacity: 0.65;
+.targetBoundary {
+  fill: rgba(56, 189, 248, 0.06);
+  stroke: rgba(56, 189, 248, 0.65);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+  pointer-events: none;
+}
+
+.cluster {
+  pointer-events: none;
+}
+
+.clusterBoundary {
+  fill: rgba(56, 189, 248, 0.05);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+
+.clusterCenter {
+  stroke: #0b0f16;
   stroke-width: 1.5;
 }
 
-.centroidRing {
-  fill: none;
-  stroke-width: 2;
+.clusterLabel {
+  font-size: 12px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: rgba(0, 0, 0, 0.65);
+  stroke-width: 3px;
 }
 
 .shot {
@@ -111,6 +131,53 @@
 
 .origin {
   fill: $color-text;
+}
+
+.hoveredShot {
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.hoveredShot.visible {
+  opacity: 1;
+}
+
+.hoveredShotGlow {
+  fill: rgb(56 189 248 / 22%);
+  stroke: none;
+}
+
+.shotTooltip {
+  transform-box: fill-box;
+  transform-origin: left center;
+  opacity: 0;
+  transform: translateY(5px) scale(0.96);
+  transition:
+    opacity 480ms ease,
+    transform 480ms ease;
+}
+
+.hoveredShot.visible .shotTooltip {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.shotTooltipBackground {
+  fill: #1f2937;
+  stroke: #475569;
+  stroke-width: 1;
+}
+
+.shotTooltipTitle {
+  fill: #f8fafc;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.shotTooltipText {
+  fill: #cbd5e1;
+  font-size: 10px;
 }
 
 .metricsPanel {
@@ -216,60 +283,4 @@
 
 .emptyIcon {
   color: $color-text-faint;
-}
-
-.hoveredShot {
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 180ms ease;
-}
-
-.visible {
-  opacity: 1;
-}
-
-.hidden {
-  opacity: 0;
-}
-
-.hoveredShotGlow {
-  fill: rgb(56 189 248 / 22%);
-  stroke: none;
-}
-
-.shotTooltip {
-  transform-box: fill-box;
-  transform-origin: left center;
-  opacity: 0;
-  transform: translateY(5px) scale(0.96);
-  transition:
-    opacity 480ms ease,
-    transform 480ms ease;
-}
-
-.visible .shotTooltip {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.hidden .shotTooltip {
-  opacity: 0;
-  transform: translateY(5px) scale(0.96);
-}
-
-.shotTooltipBackground {
-  fill: #1f2937;
-  stroke: #475569;
-  stroke-width: 1;
-}
-
-.shotTooltipTitle {
-  fill: #f8fafc;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.shotTooltipText {
-  fill: #cbd5e1;
-  font-size: 10px;
 }

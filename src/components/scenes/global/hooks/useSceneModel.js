@@ -43,9 +43,6 @@ export function useSceneModel(dataset, gridSettings) {
         const targetId = `${lineNumber}-${targetNumber}`;
         const shots = shotsByCell.get(targetId) ?? [];
 
-        // 240 — нижняя линия, 243 — верхняя.
-        const rowFromBottom = lineIndex;
-
         targets.push({
           targetId,
           shots,
@@ -55,10 +52,10 @@ export function useSceneModel(dataset, gridSettings) {
           targetNumber,
 
           column: targetNumber,
-          rowFromBottom,
+          rowFromBottom: lineIndex,
 
           centerX: (targetNumber - CENTER_COLUMN) * dx,
-          centerY: (rowFromBottom - (GRID_ROWS - 1) / 2) * dy,
+          centerY: (lineIndex - (GRID_ROWS - 1) / 2) * dy,
         });
       });
     });
