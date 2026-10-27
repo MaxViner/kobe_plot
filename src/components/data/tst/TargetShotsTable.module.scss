@@ -10,19 +10,28 @@
   font-size: 12px;
   color: $color-text-faint;
 }
+.tableCard{
 
+}
 .tableWrapper {
   max-height: calc(100vh - 260px);
   overflow: auto;
   border: 1px solid $color-border;
   border-radius: $radius-sm;
   @include scroll-area;
-}
+  
+  @media (max-width: 480px) {
+    max-height: none;
+  
+}}
 
 .table {
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
+  
+  max-height: none;
+
 }
 
 .caption {
