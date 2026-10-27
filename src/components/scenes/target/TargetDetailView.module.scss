@@ -39,12 +39,12 @@
   align-items: center;
   justify-content: center;
   min-height: 0;
-  height: 100dvh;
+  
   padding: 8px;
   border-radius: $radius-md;
   background: #111827;
   border: 1px solid rgb(0, 255, 229);
-  box-shadow: 3px 3px 10px rgb(0, 187, 255);
+  box-shadow: 1px 1px 6px rgba(0, 187, 255, 0.753);
 
   @media (max-width: 900px) {
     padding: 4px;
@@ -54,10 +54,12 @@
 .radar {
   display: block;
   height: auto;
-  aspect-ratio: 1 / 1;
+  
   max-width: 70%;
   margin: 0 auto;
   overflow: visible;
+  padding-top: 70px;
+  padding-bottom: 20px;
 }
 
 .rangeRing {
@@ -195,6 +197,7 @@
     min-height: auto;
     overflow: visible;
   }
+  
 }
 
 .metricsCard {
@@ -202,6 +205,10 @@
   border: 1px solid $color-border;
   border-radius: $radius-md;
   background: $color-surface-raised;
+  transition: 0.4s ease-in-out;
+ 
+  cursor: pointer;
+
 }
 
 .metricsTitle {
@@ -220,6 +227,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  
 }
 
 .clusterCard {
@@ -227,6 +235,12 @@
   border: 1px solid $color-border;
   border-radius: $radius-sm;
   background: $color-surface;
+  transition: 0.5s ease-in-out;
+  &:hover{
+    transform: scale(1.005);
+    border: 1px solid rgb(0, 191, 255);
+    box-shadow: -0px -0px 20px blue;
+  }
 }
 
 .clusterHeader {
@@ -287,4 +301,68 @@
 
 .emptyIcon {
   color: $color-text-faint;
+}
+
+.radarWrapper {
+  position: relative;
+}
+
+.zoomControls {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+
+  z-index: 5;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 4px;
+
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 10px;
+
+  background: rgba(2, 6, 23, 0.82);
+
+  backdrop-filter: blur(6px);
+}
+
+.zoomButton,
+.zoomResetButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 30px;
+  height: 30px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+  color: #e2e8f0;
+
+  font-size: 11px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.zoomButton:hover:not(:disabled),
+.zoomResetButton:hover {
+  background: rgba(56, 189, 248, 0.14);
+  color: #38bdf8;
+}
+
+.zoomButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.zoomResetButton {
+  min-width: 46px;
 }

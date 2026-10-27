@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
-import { Radar } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Radar, Plus, Minus } from 'lucide-react';
 import { RangeField } from '../../ui/rangeField/RangeField.jsx';
 import { SectionHeader } from '../../ui/sectionheader/SectionHeader.jsx';
-import { useClusterAnalysis } from './hooks/useClusterAnalysis.js';
+import { useClusterResultsStore } from '../../../stores/useClusterResultsStore.js';
 import { useTargetShots } from './hooks/useTargetShots.js';
 import { useTargetRadarScale } from './hooks/useTargetRadarScale.js';
 import { useTargetMetrics } from './hooks/useTargetMetrics.js';
@@ -13,12 +13,18 @@ import { HoveredShotLayer } from './parts/HoveredShotLayer.jsx';
 import { TargetMetricsPanel } from './parts/TargetMetricsPanel.jsx';
 import styles from './TargetDetailView.module.scss';
 
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 4;
+const ZOOM_STEP = 0.25;
+
 export function TargetDetailView({
- dataset,
+  dataset,
   targetId,
   clusterCount,
   minClusterCount,
   maxClusterCount,
+  clusteringAlgorithm,
+  clusteringOptions = {},
   hoveredShotId,
   onClusterCountChange,
   targetRadius = 50,
@@ -28,19 +34,63 @@ export function TargetDetailView({
 }) {
   const shots = useTargetShots(dataset, targetId);
 
-    const { result, clusterByShotId } = useClusterAnalysis(
-      shots,
-      clusterCount,
-      maxClusterSize
-);
+  const clusterResult = useClusterResultsStore(
+    (state) =>
+      state.resultsByTargetId.get(targetId),
+  );
 
-  const { size, center, maxRadius, maxRange, toScreen } =
-    useTargetRadarScale(shots);
+  const clusterByShotId = useClusterResultsStore(
+    (state) =>
+      state.clusterByShotIdByTargetId.get(
+        targetId,
+      ) ?? new Map(),
+  );
+
+  const [zoom, setZoom] = useState(1);
+
+  const handleZoomIn = () => {
+    setZoom((previousZoom) =>
+      Math.min(
+        Number(
+          (previousZoom + ZOOM_STEP).toFixed(2),
+        ),
+        MAX_ZOOM,
+      ),
+    );
+  };
+
+  const handleZoomOut = () => {
+    setZoom((previousZoom) =>
+      Math.max(
+        Number(
+          (previousZoom - ZOOM_STEP).toFixed(2),
+        ),
+        MIN_ZOOM,
+      ),
+    );
+  };
+
+  const handleZoomReset = () => {
+    setZoom(1);
+  };
+
+  const result = clusterResult;
+
+  const {
+    size,
+    center,
+    maxRadius,
+    maxRange,
+    toScreen,
+  } = useTargetRadarScale(shots);
 
   const metrics = useTargetMetrics(shots, result);
 
   const hoveredShot = useMemo(
-    () => shots.find((shot) => shot.id === hoveredShotId) ?? null,
+    () =>
+      shots.find(
+        (shot) => shot.id === hoveredShotId,
+      ) ?? null,
     [shots, hoveredShotId],
   );
 
@@ -49,7 +99,9 @@ export function TargetDetailView({
       return 0;
     }
 
-    return shots.findIndex((shot) => shot.id === hoveredShot.id);
+    return shots.findIndex(
+      (shot) => shot.id === hoveredShot.id,
+    );
   }, [shots, hoveredShot]);
 
   const activeShot = hoveredShot ?? shots[0];
@@ -62,7 +114,11 @@ export function TargetDetailView({
       };
     }
 
-  return toScreen(activeShot.zLocal, activeShot.xLocal);  }, [activeShot, center, toScreen]);
+    return toScreen(
+      activeShot.zLocal,
+      activeShot.xLocal,
+    );
+  }, [activeShot, center, toScreen]);
 
   const targetScreenRadius = useMemo(() => {
     const maxTargetRange = Math.max(
@@ -71,14 +127,26 @@ export function TargetDetailView({
       Number.EPSILON,
     );
 
-    return (targetRadius / maxTargetRange) * maxRadius;
+    return (
+      (targetRadius / maxTargetRange) * maxRadius
+    );
   }, [maxRange, maxRadius, targetRadius]);
+
+  const isDbscan =
+    clusteringAlgorithm === 'dbscan';
 
   if (!targetId || shots.length === 0) {
     return (
       <section className={styles.empty}>
-        <Radar size={32} className={styles.emptyIcon} />
-        <p>Выберите мишень на панораме или в списке.</p>
+        <Radar
+          size={32}
+          className={styles.emptyIcon}
+        />
+
+        <p>
+          Выберите мишень на панораме или в
+          списке.
+        </p>
       </section>
     );
   }
@@ -86,31 +154,50 @@ export function TargetDetailView({
   return (
     <section className={styles.scene}>
       <SectionHeader
-        icon={<Radar size={16} className={styles.headerIcon} />}
-        title={`Target Inspector · ${targetId}`}
+        icon={
+          <Radar
+            size={20}
+            className={styles.headerIcon}
+          />
+        }
+        title={`Инспектор мишени · ${targetId}`}
         action={
           <RangeField
-        label="Кластеров"
-        displayValue={clusterCount}
-        min={minClusterCount}
-        max={10}
-        value={clusterCount}
-        onChange={(event) => {
-          const nextClusterCount = Number(event.target.value);
+            label="Кластеров"
+            displayValue={
+              isDbscan ? 'авто' : clusterCount
+            }
+            min={minClusterCount}
+            max={maxClusterCount}
+            value={clusterCount}
+            disabled={isDbscan}
+            onChange={(event) => {
+              if (isDbscan) {
+                return;
+              }
 
-          onClusterCountChange(
-            Math.min(
-              Math.max(nextClusterCount, minClusterCount),
-              maxClusterCount,
-            ),
-          );
-        }}
-      />
+              const nextClusterCount = Number(
+                event.target.value,
+              );
+
+              onClusterCountChange(
+                Math.min(
+                  Math.max(
+                    nextClusterCount,
+                    minClusterCount,
+                  ),
+                  maxClusterCount,
+                ),
+              );
+            }}
+          />
         }
       />
 
       <div className={styles.content}>
-        <div className={styles.radarWrapper}>
+        <div
+          className={styles.radarWrapper}
+        >
           <svg
             viewBox={`0 0 ${size} ${size}`}
             className={styles.radar}
@@ -132,55 +219,111 @@ export function TargetDetailView({
                 />
 
                 <feMerge>
-                  <feMergeNode in="blurredShot" />
-                  <feMergeNode in="SourceGraphic" />
+                  <feMergeNode
+                    in="blurredShot"
+                  />
+
+                  <feMergeNode
+                    in="SourceGraphic"
+                  />
                 </feMerge>
               </filter>
             </defs>
 
-            <RadarGrid
-              size={size}
-              center={center}
-              maxRadius={maxRadius}
-            />
+            <g
+              transform={`translate(${center} ${center}) scale(${zoom}) translate(${-center} ${-center})`}
+            >
+              <RadarGrid
+                size={size}
+                center={center}
+                maxRadius={maxRadius}
+              />
 
-            <circle
-              cx={center}
-              cy={center}
-              r={targetScreenRadius}
-              className={styles.targetBoundary}
-            />
+              <circle
+                cx={center}
+                cy={center}
+                r={targetScreenRadius}
+                className={
+                  styles.targetBoundary
+                }
+              />
 
-            <ClusterLayer
-              clusters={result.clusters}
-              toScreen={toScreen}
-              rangeToScreenScale={maxRadius / maxRange}
-            />
+              <ClusterLayer
+                clusters={result.clusters}
+                toScreen={toScreen}
+                rangeToScreenScale={
+                  maxRadius / maxRange
+                }
+              />
 
-            <ShotLayer
-              shots={shots}
-              clusterByShotId={clusterByShotId}
-              hoveredShotId={hoveredShotId}
-              toScreen={toScreen}
-              onHoverShot={onHoverShot}
-              onLeaveShot={onLeaveShot}
-            />
+              <ShotLayer
+                shots={shots}
+                clusterByShotId={
+                  clusterByShotId
+                }
+                hoveredShotId={hoveredShotId}
+                toScreen={toScreen}
+                onHoverShot={onHoverShot}
+                onLeaveShot={onLeaveShot}
+              />
 
-            <HoveredShotLayer
-              shot={activeShot}
-              shotIndex={hoveredShotIndex}
-              point={activePoint}
-              center={center}
-              isVisible={Boolean(hoveredShot)}
-            />
+              <HoveredShotLayer
+                shot={activeShot}
+                shotIndex={hoveredShotIndex}
+                point={activePoint}
+                center={center}
+                isVisible={Boolean(
+                  hoveredShot,
+                )}
+              />
 
-            <circle
-              cx={center}
-              cy={center}
-              r={4}
-              className={styles.origin}
-            />
+              <circle
+                cx={center}
+                cy={center}
+                r={4}
+                className={styles.origin}
+              />
+            </g>
           </svg>
+
+          <div
+            className={styles.zoomControls}
+          >
+            <button
+              type="button"
+              className={
+                styles.zoomButton
+              }
+              onClick={handleZoomOut}
+              disabled={zoom <= MIN_ZOOM}
+              aria-label="Уменьшить масштаб"
+            >
+              <Minus size={14} />
+            </button>
+
+            <button
+              type="button"
+              className={
+                styles.zoomResetButton
+              }
+              onClick={handleZoomReset}
+              aria-label="Сбросить масштаб"
+            >
+              {Math.round(zoom * 100)}%
+            </button>
+
+            <button
+              type="button"
+              className={
+                styles.zoomButton
+              }
+              onClick={handleZoomIn}
+              disabled={zoom >= MAX_ZOOM}
+              aria-label="Увеличить масштаб"
+            >
+              <Plus size={14} />
+            </button>
+          </div>
         </div>
 
         <TargetMetricsPanel

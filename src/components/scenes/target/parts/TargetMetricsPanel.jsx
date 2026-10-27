@@ -20,7 +20,7 @@ export function TargetMetricsPanel({
     <aside className={styles.metricsPanel}>
       <div className={styles.metricsCard}>
         <h3 className={styles.metricsTitle}>
-          <Gauge size={14} />
+          <Gauge size={28} color='blue' />
           Общая статистика по мишени
         </h3>
 
@@ -61,7 +61,7 @@ export function TargetMetricsPanel({
 
       <div className={styles.metricsCard}>
         <h3 className={styles.metricsTitle}>
-          <Layers size={14} />
+          <Layers size={24} color='orange'/>
           Кластеры
         </h3>
 

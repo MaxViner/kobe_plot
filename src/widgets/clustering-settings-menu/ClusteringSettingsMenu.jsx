@@ -98,7 +98,7 @@ export function ClusteringSettingsMenu({
         aria-expanded={isOpen}
         aria-controls="clustering-settings-panel"
       >
-        <Boxes size={28} />
+        <Boxes size={28} color='orange'/>
         Настройки кластеризации
       </button>
 

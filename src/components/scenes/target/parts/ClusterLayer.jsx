@@ -67,8 +67,11 @@ export function ClusterLayer({
             <circle
               cx={point.x}
               cy={point.y}
-              r={Math.max(clusterRadius * 0.1, 4)}
-              className={styles.clusterCenter}
+              r={Math.min(
+                  Math.max(clusterRadius * 0.1, 4),
+                  8,
+                )}              
+                className={styles.clusterCenter}
               style={{
                 fill: clusterColor(index+2),
               }}

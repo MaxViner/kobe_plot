@@ -12,7 +12,10 @@ import {
 } from './features/dataset/datasetHandlers.js';
 import { useBallisticsDataset } from './features/dataset/useBallisticsDataset.js';
 import { createMockDataset } from './features/csv/csvMock.js';
-import { runKMeansForTarget } from './math/clustering/index.js';
+import { useUiStore } from './stores/useUiStore.js';
+import { useGridSettingsStore } from './stores/useGridSettingsStore.js';
+import { useClusteringSettingsStore } from './stores/useClusteringSettingsStore.js';
+import { useClusterResultsStore } from './stores/useClusterResultsStore.js';
 import styles from './styles/app.module.scss';
 import {
   GRID_COLUMNS,
@@ -20,39 +23,74 @@ import {
 } from './components/scenes/global/hooks/useSceneModel.js';
 
 export default function App() {
-  const [viewMode, setViewMode] = useState('overview');
-  const [selectedTargetId, setSelectedTargetId] = useState(null);
-  const [error, setError] = useState(null);
-  const [hoveredShotId, setHoveredShotId] = useState(null);
-  const [hoveredTargetId, setHoveredTargetId] = useState(null);
-  const [clusterCountsByTargetId, setClusterCountsByTargetId] =
-    useState({});
-
-  const [gridSettings, setGridSettings] = useState({
-    dx: 200,
-    dy: 500,
-    targetRadius: 50,
-    approachCourse: 270,
-  });
-
-  const [clusteringSettings, setClusteringSettings] = useState({
-    clusteringAlgorithm: 'capacity-kmeans',
-    maxClusterSize: 24,
-    dbscanEpsilon: 20,
-    dbscanMinSamples: 3,
-  });
-
-  const hasLoadedDefaultDataset = useRef(false);
-
-  const handleClusteringSettingsChange = useCallback(
-    (nextSettings) => {
-      setClusteringSettings((previousSettings) => ({
-        ...previousSettings,
-        ...nextSettings,
-      }));
-    },
-    [],
+  const viewMode = useUiStore((state) => state.viewMode);
+  const selectedTargetId = useUiStore(
+    (state) => state.selectedTargetId,
   );
+  const hoveredShotId = useUiStore(
+    (state) => state.hoveredShotId,
+  );
+  const hoveredTargetId = useUiStore(
+    (state) => state.hoveredTargetId,
+  );
+  const clusterCountsByTargetId = useUiStore(
+    (state) => state.clusterCountsByTargetId,
+  );
+
+  const setViewMode = useUiStore(
+    (state) => state.setViewMode,
+  );
+  const selectTarget = useUiStore(
+    (state) => state.selectTarget,
+  );
+  const selectStatisticsTarget = useUiStore(
+    (state) => state.selectStatisticsTarget,
+  );
+  const backToTargetList = useUiStore(
+    (state) => state.backToTargetList,
+  );
+  const setHoveredShotId = useUiStore(
+    (state) => state.setHoveredShotId,
+  );
+  const setHoveredTargetId = useUiStore(
+    (state) => state.setHoveredTargetId,
+  );
+  const setClusterCount = useUiStore(
+    (state) => state.setClusterCount,
+  );
+  const resetDatasetSelection = useUiStore(
+    (state) => state.resetDatasetSelection,
+  );
+
+  const gridSettings = useGridSettingsStore();
+  const updateGridSettings = useGridSettingsStore(
+    (state) => state.updateGridSettings,
+  );
+
+  const clusteringSettings =
+    useClusteringSettingsStore();
+  const updateClusteringSettings =
+    useClusteringSettingsStore(
+      (state) => state.updateClusteringSettings,
+    );
+
+  const recomputeClusterResults =
+    useClusterResultsStore(
+      (state) => state.recomputeClusterResults,
+    );
+
+  const clusterResultsByTargetId =
+    useClusterResultsStore(
+      (state) => state.resultsByTargetId,
+    );
+
+  const clusterByShotIdByTargetId =
+    useClusterResultsStore(
+      (state) => state.clusterByShotIdByTargetId,
+    );
+
+  const [error, setError] = useState(null);
+  const hasLoadedDefaultDataset = useRef(false);
 
   const initialDataset = useMemo(
     () => createMockDataset(),
@@ -68,6 +106,12 @@ export default function App() {
     gridSettings.approachCourse,
   );
 
+  const targetIds = dataset?.targetIds ?? [];
+
+  const selectedTargetIndex = targetIds.indexOf(
+    selectedTargetId,
+  );
+
   const selectedShots =
     dataset?.targetsById.get(selectedTargetId) ?? [];
 
@@ -80,7 +124,9 @@ export default function App() {
 
   const minClusterCount = Math.max(
     1,
-    Math.ceil(selectedShots.length / safeMaxClusterSize),
+    Math.ceil(
+      selectedShots.length / safeMaxClusterSize,
+    ),
   );
 
   const maxClusterCount = Math.max(
@@ -94,8 +140,10 @@ export default function App() {
 
   const clusteringOptions = useMemo(
     () => ({
-      epsilon: clusteringSettings.dbscanEpsilon,
-      minSamples: clusteringSettings.dbscanMinSamples,
+      epsilon:
+        clusteringSettings.dbscanEpsilon,
+      minSamples:
+        clusteringSettings.dbscanMinSamples,
     }),
     [
       clusteringSettings.dbscanEpsilon,
@@ -103,123 +151,42 @@ export default function App() {
     ],
   );
 
-  const clusterResultsByTargetId = useMemo(() => {
-    if (!dataset) {
-      return new Map();
-    }
-
-    const results = new Map();
-    const targetIds = dataset.targetIds ?? [];
-
-    const maxClusterSize = Math.max(
-      1,
-      Math.floor(
-        Number(clusteringSettings.maxClusterSize) || 1,
-      ),
-    );
-
-    targetIds.forEach((targetId) => {
-      const shots =
-        dataset.targetsById.get(targetId) ?? [];
-
-      const automaticClusterCount = Math.max(
-        1,
-        Math.ceil(shots.length / maxClusterSize),
-      );
-
-      results.set(
-        targetId,
-        runKMeansForTarget(
-          shots,
-          automaticClusterCount,
-          maxClusterSize,
-          clusteringSettings.clusteringAlgorithm,
-          {
-            epsilon: clusteringSettings.dbscanEpsilon,
-            minSamples:
-              clusteringSettings.dbscanMinSamples,
-          },
-        ),
-      );
+  useEffect(() => {
+    recomputeClusterResults({
+      dataset,
+      clusteringSettings,
+      clusterCountsByTargetId,
     });
-
-    return results;
   }, [
     dataset,
-    clusteringSettings.clusteringAlgorithm,
-    clusteringSettings.maxClusterSize,
-    clusteringSettings.dbscanEpsilon,
-    clusteringSettings.dbscanMinSamples,
+    clusteringSettings,
+    clusterCountsByTargetId,
+    recomputeClusterResults,
   ]);
-
-  const handleHoverShot = useCallback((shotId) => {
-    setHoveredShotId(shotId);
-  }, []);
-
-  const handleLeaveShot = useCallback(() => {
-    setHoveredShotId(null);
-  }, []);
-
-  const handleHoverTarget = useCallback((targetId) => {
-    setHoveredTargetId(targetId);
-  }, []);
-
-  const handleLeaveTarget = useCallback(() => {
-    setHoveredTargetId(null);
-  }, []);
 
   const handleLoadCsv = useCallback(
     createLoadCsvHandler(
       (nextDataset) => {
         setError(null);
-        setSelectedTargetId(null);
-        setViewMode('overview');
+        resetDatasetSelection();
         loadDataset(nextDataset);
       },
       setError,
     ),
-    [loadDataset],
+    [loadDataset, resetDatasetSelection],
   );
 
   const handleLoadMock = useCallback(
     createLoadMockHandler((nextDataset) => {
       setError(null);
-      setSelectedTargetId(null);
-      setViewMode('overview');
+      resetDatasetSelection();
       loadDataset(nextDataset);
     }),
-    [loadDataset],
+    [loadDataset, resetDatasetSelection],
   );
 
   const handleDownloadTemplate = useCallback(
     createDownloadTemplateHandler(),
-    [],
-  );
-
-  const handleSelectTarget = useCallback((targetId) => {
-    setSelectedTargetId(targetId);
-    setViewMode('target');
-  }, []);
-
-  const handleSelectStatisticsTarget = useCallback(
-    (targetId) => {
-      setSelectedTargetId(targetId);
-    },
-    [],
-  );
-
-  const handleBackToTargetList = useCallback(() => {
-    setViewMode('overview');
-    setSelectedTargetId(null);
-  }, []);
-
-  const handleGridSettingsChange = useCallback(
-    (nextSettings) => {
-      setGridSettings((previousSettings) => ({
-        ...previousSettings,
-        ...nextSettings,
-      }));
-    },
     [],
   );
 
@@ -229,12 +196,12 @@ export default function App() {
         return;
       }
 
-      setClusterCountsByTargetId((previous) => ({
-        ...previous,
-        [selectedTargetId]: nextClusterCount,
-      }));
+      setClusterCount(
+        selectedTargetId,
+        nextClusterCount,
+      );
     },
-    [selectedTargetId],
+    [selectedTargetId, setClusterCount],
   );
 
   useEffect(() => {
@@ -246,7 +213,9 @@ export default function App() {
 
     const loadDefaultDataset = async () => {
       try {
-        const response = await fetch('/shots.csv');
+        const response = await fetch(
+          '/shots.csv',
+        );
 
         if (!response.ok) {
           throw new Error(
@@ -303,31 +272,58 @@ export default function App() {
     };
   }, [gridSettings]);
 
+  const previousTargetId =
+    selectedTargetIndex > 0
+      ? targetIds[selectedTargetIndex - 1]
+      : null;
+
+  const nextTargetId =
+    selectedTargetIndex >= 0 &&
+    selectedTargetIndex < targetIds.length - 1
+      ? targetIds[selectedTargetIndex + 1]
+      : null;
+
+  const targetNavigation = {
+    targetId: selectedTargetId,
+    currentIndex: selectedTargetIndex,
+    totalCount: targetIds.length,
+    previousTargetId,
+    nextTargetId,
+    canGoPrevious: Boolean(previousTargetId),
+    canGoNext: Boolean(nextTargetId),
+    onBack: backToTargetList,
+    onSelectTarget: selectTarget,
+  };
+
   return (
     <div className={styles.root}>
       <AppHeaderWidget
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         gridSettings={gridSettings}
-        onGridSettingsChange={handleGridSettingsChange}
+        onGridSettingsChange={updateGridSettings}
         clusteringSettings={clusteringSettings}
         onClusteringSettingsChange={
-          handleClusteringSettingsChange
+          updateClusteringSettings
         }
+        targetNavigation={targetNavigation}
       />
 
       <main className={styles.main}>
-        {viewMode === 'target' && selectedTargetId ? (
+        {viewMode === 'target' &&
+        selectedTargetId ? (
           <TargetInspectorSidebarWidget
             targetId={selectedTargetId}
             className={styles.sidebarOnMobile}
             shots={selectedShots}
-            targetIds={dataset.targetIds}
+            targetIds={targetIds}
             hoveredShotId={hoveredShotId}
-            onHoverShot={handleHoverShot}
-            onLeaveShot={handleLeaveShot}
-            onSelectTarget={handleSelectTarget}
-            onBack={handleBackToTargetList}
+            onHoverShot={setHoveredShotId}
+            onLeaveShot={() =>
+              setHoveredShotId(null)
+            }
+            onSelectTarget={selectTarget}
+            onBack={backToTargetList}
           />
         ) : (
           <DatasetSidebarWidget
@@ -338,10 +334,14 @@ export default function App() {
             error={error}
             onLoadCsv={handleLoadCsv}
             onLoadMock={handleLoadMock}
-            onDownloadTemplate={handleDownloadTemplate}
-            onSelectTarget={handleSelectTarget}
-            onHoverTarget={handleHoverTarget}
-            onLeaveTarget={handleLeaveTarget}
+            onDownloadTemplate={
+              handleDownloadTemplate
+            }
+            onSelectTarget={selectTarget}
+            onHoverTarget={setHoveredTargetId}
+            onLeaveTarget={() =>
+              setHoveredTargetId(null)
+            }
           />
         )}
 
@@ -356,7 +356,7 @@ export default function App() {
               sceneBounds={sceneBounds}
               selectedTargetId={selectedTargetId}
               hoveredTargetId={hoveredTargetId}
-              onSelectTarget={handleSelectTarget}
+              onSelectTarget={selectTarget}
               gridSettings={gridSettings}
             />
           ) : viewMode === 'statistics' ? (
@@ -366,7 +366,9 @@ export default function App() {
                 clusterResultsByTargetId
               }
               selectedTargetId={selectedTargetId}
-              onSelectTarget={handleSelectStatisticsTarget}
+              onSelectTarget={
+                selectStatisticsTarget
+              }
             />
           ) : (
             <TargetDetailView
@@ -384,9 +386,13 @@ export default function App() {
               onClusterCountChange={
                 handleClusterCountChange
               }
-              targetRadius={gridSettings.targetRadius}
-              onHoverShot={handleHoverShot}
-              onLeaveShot={handleLeaveShot}
+              targetRadius={
+                gridSettings.targetRadius
+              }
+              onHoverShot={setHoveredShotId}
+              onLeaveShot={() =>
+                setHoveredShotId(null)
+              }
             />
           )}
         </div>

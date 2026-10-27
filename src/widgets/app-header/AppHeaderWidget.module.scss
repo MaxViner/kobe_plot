@@ -2,13 +2,24 @@
 @use '../../styles/mixins' as *;
 
 .header {
+  position: relative;
+  z-index: 40;
+
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 12px;
+
+  padding: 14px 18px;
+
+  background: rgba(2, 6, 23, 0.92);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.headerTop {
+  display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  padding: 12px 20px;
-  border-bottom: 1px solid $color-border;
-  background: $color-surface;
+  gap: 12px;
 }
 
 .branding {
@@ -17,59 +28,203 @@
 
 .title {
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: $color-text;
+
+  font-size: 18px;
+  font-weight: 700;
+  color: #e2e8f0;
 }
 
 .subtitle {
-  margin: 2px 0 0;
+  margin: 4px 0 0;
+
   font-size: 12px;
-  color: $color-text-faint;
+  color: #94a3b8;
+}
+
+.desktopActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobileSettingsButton {
+  display: none;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 38px;
+
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 10px;
+
+  background: rgba(15, 23, 42, 0.8);
+  color: #e2e8f0;
+
+  cursor: pointer;
+}
+
+.mobileNavigation {
+  display: none;
 }
 
 .switcher {
   display: flex;
-  gap: 4px;
-  padding: 4px;
-  border: 1px solid $color-border;
-  border-radius: $radius-md;
-  background: $color-surface-raised;
+  gap: 6px;
 }
 
 .modeButton {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  height: 32px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: $radius-sm;
-  background: transparent;
-  color: $color-text-muted;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-  @include focus-ring;
+  gap: 6px;
 
-  &:hover {
-    background: $color-surface;
-    color: $color-text;
-  }
+  padding: 7px 12px;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  background: transparent;
+  color: #94a3b8;
+
+  font-size: 12px;
+
+  cursor: pointer;
 }
 
 .modeButtonActive {
-  background: $color-accent;
-  color: #04121d;
+  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+}
 
-  &:hover {
-    background: $color-accent-hover;
-    color: #04121d;
+.mobileSettingsOverlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 100;
+
+  background: rgba(2, 6, 23, 0.6);
+
+  animation: fadeIn 0.18s ease-out;
+}
+
+.mobileSettingsPanel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70dvh;
+  max-height: 100vh;
+
+  padding: 16px;
+
+  background: rgba(2, 6, 23, 0.877);
+
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+
+  overflow-y: auto;
+
+  animation: slideDown 0.22s ease-out;
+}
+
+.mobileSettingsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 16px;
+
+  color: #e2e8f0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.mobileSettingsClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 10px;
+
+  background: transparent;
+  color: #e2e8f0;
+
+  cursor: pointer;
+}
+
+.mobileSettingsContent {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 
-.actions{
-  display: flex;
-  gap:12px;
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 10px 12px;
+    
+  }
+
+  .title {
+    font-size: 15px;
+  }
+
+  .subtitle {
+    display: none;
+  }
+
+  .desktopActions {
+    display: none;
+  }
+
+  .mobileSettingsButton {
+    display: inline-flex;
+  }
+
+  .mobileNavigation {
+    display: block;
+  }
+
+  .switcher {
+    overflow-x: auto;
+
+    padding-bottom: 2px;
+  }
+
+  .modeButton {
+    flex-shrink: 0;
+
+    padding: 6px 10px;
+
+    font-size: 11px;
+  }
+
+  .mobileSettingsPanel {
+    padding: 14px 12px 20px;
+  }
 }
