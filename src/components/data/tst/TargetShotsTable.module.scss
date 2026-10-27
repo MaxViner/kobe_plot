@@ -130,3 +130,41 @@ tbody tr {
   color: #94a3b8;
   font-weight: 400;
 }
+.tableHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+
+  h3 {
+    margin: 0;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+
+
+    text-align: left;
+  }
+
+  span {
+    white-space: nowrap;
+  }
+}
+
+.navigation{
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  button{
+    cursor: pointer;
+    transition: 0.5s ease-in-out;
+    &:hover{
+   
+    transform: scale(1.02);
+  }
+
+  }
+}

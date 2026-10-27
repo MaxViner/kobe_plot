@@ -1,11 +1,11 @@
-import { Table2 } from 'lucide-react';
+import { Crosshair  } from 'lucide-react';
 import styles from '../TargetShotsTable.module.scss';
 
 export function TargetTableHeader({ targetId, shotCount }) {
   return (
     <header className={styles.tableHeader}>
       <h3 className={styles.tableTitle}>
-        <Table2 size={16} />
+        <Crosshair  size={24} />
         Выстрелы мишени {targetId}
       </h3>
 

@@ -1,4 +1,4 @@
-import { clusterColor } from '../../../../math/clustering.js';
+import { clusterColor } from '../../../../math/clustering/constants.js';
 import styles from '../TargetDetailView.module.scss';
 
 const getCentroidHeight = (centroid) => {
@@ -18,21 +18,35 @@ const getCentroidLateral = (centroid) => {
 };
 
 export function ClusterLayer({
-  clusters,
+  clusters = [],
   toScreen,
   rangeToScreenScale = 1,
 }) {
-  const safeScale = Number.isFinite(rangeToScreenScale)
+  const safeClusters = Array.isArray(clusters)
+    ? clusters
+    : [];
+
+  const safeScale = Number.isFinite(
+    rangeToScreenScale,
+  )
     ? rangeToScreenScale
     : 1;
 
   return (
     <>
-      {clusters.map((cluster, index) => {
-        const height = getCentroidHeight(cluster.centroid);
-        const lateral = getCentroidLateral(cluster.centroid);
+      {safeClusters.map((cluster, index) => {
+        const height = getCentroidHeight(
+          cluster?.centroid,
+        );
 
-        if (!Number.isFinite(height) || !Number.isFinite(lateral)) {
+        const lateral = getCentroidLateral(
+          cluster?.centroid,
+        );
+
+        if (
+          !Number.isFinite(height) ||
+          !Number.isFinite(lateral)
+        ) {
           return null;
         }
 
@@ -45,20 +59,27 @@ export function ClusterLayer({
           return null;
         }
 
-        const clusterRadius = Number.isFinite(cluster.rMax)
+        const clusterRadius = Number.isFinite(
+          cluster.rMax,
+        )
           ? cluster.rMax * safeScale
           : 0;
 
         return (
           <g
-            key={cluster.id ?? `cluster-${index}`}
+            key={
+              cluster.id ??
+              `cluster-${index}`
+            }
             className={styles.cluster}
           >
             <circle
               cx={point.x}
               cy={point.y}
               r={clusterRadius}
-              className={styles.clusterBoundary}
+              className={
+                styles.clusterBoundary
+              }
               style={{
                 stroke: clusterColor(index),
               }}
@@ -68,12 +89,17 @@ export function ClusterLayer({
               cx={point.x}
               cy={point.y}
               r={Math.min(
-                  Math.max(clusterRadius * 0.1, 4),
-                  8,
-                )}              
-                className={styles.clusterCenter}
+                Math.max(
+                  clusterRadius * 0.1,
+                  4,
+                ),
+                8,
+              )}
+              className={
+                styles.clusterCenter
+              }
               style={{
-                fill: clusterColor(index+2),
+                fill: clusterColor(index),
               }}
             />
 
@@ -81,7 +107,9 @@ export function ClusterLayer({
               x={point.x}
               y={point.y - clusterRadius - 8}
               textAnchor="middle"
-              className={styles.clusterLabel}
+              className={
+                styles.clusterLabel
+              }
               style={{
                 fill: clusterColor(index),
               }}

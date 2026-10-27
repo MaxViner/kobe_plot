@@ -1,5 +1,5 @@
 import { Layers } from 'lucide-react';
-import { clusterColor } from '../../../../math/clustering.js';
+import { CLUSTER_COLORS } from '../../../../math/clustering/constants.js';
 import styles from '../StatisticsScene.module.scss';
 
 const formatMeters = (value) => {
@@ -69,7 +69,7 @@ export function ClusterStatisticsTable({
                       <span
                         className={styles.clusterDot}
                         style={{
-                          background: clusterColor(clusterIndex),
+                          background: CLUSTER_COLORS(clusterIndex),
                         }}
                       />
                       Кластер {clusterIndex + 1}

@@ -1,4 +1,4 @@
-import { clusterColor } from '../../../../math/clustering.js';
+import { clusterColor } from '../../../../math/clustering/constants.js';
 import styles from '../TargetDetailView.module.scss';
 
 const NORMAL_SHOT_RADIUS = 3.2;

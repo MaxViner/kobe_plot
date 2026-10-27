@@ -79,3 +79,35 @@
     width: 100%;
   }
 }
+
+
+@media (max-width: 480px) {
+  .main {
+    display: flex;
+    flex-direction: column;
+
+    height: auto;
+    min-height: 100vh;
+
+    overflow: visible;
+  }
+
+  .sidebarOnMobile {
+    position: static;
+
+    width: 100%;
+    max-height: none;
+
+    overflow: visible;
+
+    z-index: auto;
+  }
+
+  .workspace {
+    position: static;
+
+    width: 100%;
+
+    overflow: visible;
+  }
+}

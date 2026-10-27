@@ -17,6 +17,15 @@ const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 4;
 const ZOOM_STEP = 0.25;
 
+const EMPTY_CLUSTER_RESULT = {
+  k: 0,
+  labels: [],
+  centroids: [],
+  clusters: [],
+  iterations: 0,
+  inertia: 0,
+};
+
 export function TargetDetailView({
   dataset,
   targetId,
@@ -74,7 +83,8 @@ export function TargetDetailView({
     setZoom(1);
   };
 
-  const result = clusterResult;
+  const result =
+    clusterResult ?? EMPTY_CLUSTER_RESULT;
 
   const {
     size,
@@ -195,9 +205,7 @@ export function TargetDetailView({
       />
 
       <div className={styles.content}>
-        <div
-          className={styles.radarWrapper}
-        >
+        <div className={styles.radarWrapper}>
           <svg
             viewBox={`0 0 ${size} ${size}`}
             className={styles.radar}
@@ -286,14 +294,10 @@ export function TargetDetailView({
             </g>
           </svg>
 
-          <div
-            className={styles.zoomControls}
-          >
+          <div className={styles.zoomControls}>
             <button
               type="button"
-              className={
-                styles.zoomButton
-              }
+              className={styles.zoomButton}
               onClick={handleZoomOut}
               disabled={zoom <= MIN_ZOOM}
               aria-label="Уменьшить масштаб"
@@ -314,9 +318,7 @@ export function TargetDetailView({
 
             <button
               type="button"
-              className={
-                styles.zoomButton
-              }
+              className={styles.zoomButton}
               onClick={handleZoomIn}
               disabled={zoom >= MAX_ZOOM}
               aria-label="Увеличить масштаб"
